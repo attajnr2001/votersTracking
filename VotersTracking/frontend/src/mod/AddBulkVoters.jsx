@@ -49,7 +49,7 @@ const AddBulkVoters = ({ open, onClose }) => {
           accept="image/jpeg, image/png"
           onChange={handleFileChange}
           style={{ marginBottom: "10px" }}
-        />
+        /> 
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="secondary">
