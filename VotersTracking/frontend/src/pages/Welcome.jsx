@@ -53,7 +53,8 @@ const Welcome = () => {
           >
             <Box textAlign="center">
               <motion.div variants={itemVariants}>
-                <Typography color={"secondary"}
+                <Typography
+                  color={"secondary"}
                   sx={{ textTransform: "uppercase", fontWeight: "bold" }}
                   variant="h4"
                   gutterBottom
@@ -64,11 +65,16 @@ const Welcome = () => {
               </motion.div>
               <motion.div variants={itemVariants}>
                 <Typography variant="body1" gutterBottom component={motion.p}>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                  Harum, culpa, asperiores distinctio laudantium labore odit
-                  libero, obcaecati iure reprehenderit a perferendis dignissimos
-                  saepe temporibus hic nesciunt neque atque quod molestiae alias
-                  rem? Accusantium ex consequatur aut rerum!
+                  Welcome to the digital hub of the Effutu NPP Voters Platform.
+                  This innovative portal is designed to empower and connect our
+                  community, providing you with essential resources and
+                  up-to-date information. Here, you can easily access voter
+                  registration details, stay informed about local party events,
+                  and engage with fellow supporters. Our platform aims to
+                  strengthen our collective voice and ensure that every vote
+                  counts in shaping the future of Effutu and Ghana at large.
+                  Join us in this digital revolution as we work together towards
+                  progress and prosperity for our constituency.
                 </Typography>
               </motion.div>
               <motion.div variants={itemVariants}>
@@ -84,13 +90,31 @@ const Welcome = () => {
               </motion.div>
             </Box>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} style={{ position: "relative" }}>
             <motion.div
               style={imageStyle}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7 }}
             />
+            <Typography
+              variant="subtitle1"
+              component={motion.div}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              style={{
+                position: "absolute",
+                bottom: "20px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                backgroundColor: "rgba(255, 255, 255, 0.7)",
+                padding: "5px 10px",
+                borderRadius: "5px",
+              }}
+            >
+              HON. AFENYO MARKIN
+            </Typography>
           </Grid>
         </Grid>
       </motion.div>
