@@ -33,7 +33,7 @@ const voterSchema = mongoose.Schema(
       required: true,
     },
     image: {
-      type: String,
+      type: String, // This will now store the Firebase URL
       required: true,
     },
   },

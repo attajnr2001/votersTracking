@@ -13,6 +13,7 @@ import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import RootLayout from "./layouts/RootLayout";
+import PrivateRoute from "./helpers/PrivateRoute";
 import store from "./store";
 
 const App = () => {
@@ -21,12 +22,15 @@ const App = () => {
       <Route>
         <Route path="" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
-        <Route path="dashboard" element={<RootLayout />}>
-          <Route path="" element={<Dashboard />} />
+        <Route path="" element={<PrivateRoute />}>
+          <Route path="dashboard" element={<RootLayout />}>
+            <Route path="" element={<Dashboard />} />
+          </Route>
         </Route>
       </Route>
     )
   );
+
   return (
     <ThemeProvider theme={theme}>
       <Provider store={store}>
