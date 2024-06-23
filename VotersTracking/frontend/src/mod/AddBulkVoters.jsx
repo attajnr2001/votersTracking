@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { createWorker } from "tesseract.js";
 import {
   Button,
   Dialog,
@@ -10,32 +11,31 @@ import {
 
 const AddBulkVoters = ({ open, onClose }) => {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [extractedText, setExtractedText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  const handleUpload = () => {
-    // Handle file upload logic here (e.g., send file to server)
+  const handleUpload = async () => {
     if (selectedFile) {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-
-      // Example: Send formData to backend endpoint using fetch or axios
-      // Replace '/upload' with your actual backend endpoint
-      fetch("/upload", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("File uploaded successfully:", data);
-          onClose(); // Close dialog after handling file upload
-        })
-        .catch((error) => {
-          console.error("Error uploading file:", error);
-          // Handle error condition
-        });
+      setIsLoading(true);
+      try {
+        const worker = await createWorker();
+        await worker.loadLanguage("eng");
+        await worker.initialize("eng");
+        const {
+          data: { text },
+        } = await worker.recognize(selectedFile);
+        setExtractedText(text);
+        await worker.terminate();
+      } catch (error) {
+        console.error("Error processing image:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -44,6 +44,7 @@ const AddBulkVoters = ({ open, onClose }) => {
       <DialogTitle>Upload Image File (JPEG or PNG)</DialogTitle>
       <DialogContent>
         <input
+          ref={fileInputRef}
           type="file"
           accept="image/jpeg, image/png"
           onChange={handleFileChange}
@@ -58,11 +59,27 @@ const AddBulkVoters = ({ open, onClose }) => {
           onClick={handleUpload}
           color="primary"
           variant="contained"
-          disabled={!selectedFile}
+          disabled={!selectedFile || isLoading}
         >
-          Upload
+          {isLoading ? "Processing..." : "Upload & Extract Text"}
         </Button>
       </DialogActions>
+
+      {extractedText && (
+        <DialogContent>
+          <TextField
+            label="Extracted Text"
+            multiline
+            rows={6}
+            variant="outlined"
+            fullWidth
+            value={extractedText}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+        </DialogContent>
+      )}
     </Dialog>
   );
 };
