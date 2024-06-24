@@ -106,14 +106,16 @@ const Welcome = () => {
               style={{
                 position: "absolute",
                 bottom: "20px",
-                left: "50%",
+                left: "20%",
                 transform: "translateX(-50%)",
                 backgroundColor: "rgba(255, 255, 255, 0.7)",
                 padding: "5px 10px",
                 borderRadius: "5px",
+                textTransform: "uppercase",
+                whiteSpace: "nowrap"
               }}
             >
-              HON. AFENYO MARKIN
+              HON Alexander Kwamina Afenyo-Markin{" "}
             </Typography>
           </Grid>
         </Grid>
