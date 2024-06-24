@@ -8,7 +8,7 @@ import {
   getConstituencyData,
   getAllConstituenciesData,
 } from "../controllers/voterController.js";
-import { protect } from "../middlewares/authMiddleware.js";
+import { protect } from "../middlewares/authMiddleware.js"; 
 
 const router = express.Router();
 

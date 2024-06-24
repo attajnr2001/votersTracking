@@ -11,10 +11,13 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Avatar from "@mui/material/Avatar";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import Slide from "@mui/material/Slide";
-import AddSingleVoter from "../mod/AddSingleVoter"; // Assuming this is your AddSingleVoter component
-import AddBulkVoters from "../mod/AddBulkVoters"; // Import AddBulkVoters component
+import AddSingleVoter from "../mod/AddSingleVoter";
+import AddBulkVoters from "../mod/AddBulkVoters";
 import logo from "../assets/logo.png";
 import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../slices/usersApiSlice";
@@ -22,8 +25,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { logout } from "../slices/authSlice";
 
 const drawerWidth = 240;
-const navItems = ["ADD SINGLE", "ADD BULK", "USERS", "LOGOUT"];
-
+const navItems = ["ADD VOTERS", "MEDIA", "DATA", "USERS"];
 function HideOnScroll(props) {
   const { children, window } = props;
   const trigger = useScrollTrigger({
@@ -45,8 +47,12 @@ HideOnScroll.propTypes = {
 function Navbar(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openAddSingle, setOpenAddSingle] = useState(false); // State for Add Single dialog
-  const [openAddBulk, setOpenAddBulk] = useState(false); // State for Add Bulk dialog
+  const [openAddSingle, setOpenAddSingle] = useState(false);
+  const [openAddBulk, setOpenAddBulk] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mediaAnchorEl, setMediaAnchorEl] = useState(null);
+  const [dataAnchorEl, setDataAnchorEl] = useState(null);
+  const [profileAnchorEl, setProfileAnchorEl] = useState(null);
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -69,14 +75,39 @@ function Navbar(props) {
     setMobileOpen((prevState) => !prevState);
   };
 
+  const handleAddVotersClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMediaClick = (event) => {
+    setMediaAnchorEl(event.currentTarget);
+  };
+
+  const handleDataClick = (event) => {
+    setDataAnchorEl(event.currentTarget);
+  };
+
+  const handleProfileClick = (event) => {
+    setProfileAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setMediaAnchorEl(null);
+    setDataAnchorEl(null);
+    setProfileAnchorEl(null);
+  };
+
   const handleAddSingleClick = () => {
     setOpenAddSingle(true);
-    setOpenAddBulk(false); // Close Add Bulk dialog if open
+    setOpenAddBulk(false);
+    handleMenuClose();
   };
 
   const handleAddBulkClick = () => {
     setOpenAddBulk(true);
-    setOpenAddSingle(false); // Close Add Single dialog if open
+    setOpenAddSingle(false);
+    handleMenuClose();
   };
 
   const drawer = (
@@ -92,18 +123,21 @@ function Navbar(props) {
               component={Link}
               to={item === "USERS" ? "/users" : "#"}
               onClick={
-                item === "ADD SINGLE"
-                  ? handleAddSingleClick
-                  : item === "ADD BULK"
-                  ? handleAddBulkClick
-                  : item === "LOGOUT"
-                  ? logoutHandler
+                item === "ADD VOTERS"
+                  ? handleAddVotersClick
+                  : item === "MEDIA"
+                  ? handleMediaClick
+                  : item === "DATA"
+                  ? handleDataClick
                   : undefined
               }
             >
               {item}
             </Button>
           ))}
+          <IconButton onClick={handleProfileClick}>
+            <Avatar alt={userInfo?.name} src={userInfo?.avatar} />
+          </IconButton>
         </Box>
       </List>
     </Box>
@@ -146,18 +180,21 @@ function Navbar(props) {
                   component={Link}
                   to={item === "USERS" ? "/dashboard/users" : "#"}
                   onClick={
-                    item === "ADD SINGLE"
-                      ? handleAddSingleClick
-                      : item === "ADD BULK"
-                      ? handleAddBulkClick
-                      : item === "LOGOUT"
-                      ? logoutHandler
+                    item === "ADD VOTERS"
+                      ? handleAddVotersClick
+                      : item === "MEDIA"
+                      ? handleMediaClick
+                      : item === "DATA"
+                      ? handleDataClick
                       : undefined
                   }
                 >
                   {item}
                 </Button>
               ))}
+              <IconButton onClick={handleProfileClick} sx={{ color: "#fff" }}>
+                <Avatar alt={userInfo?.name} src={userInfo?.avatar} />
+              </IconButton>
             </Box>
           </Toolbar>
         </AppBar>
@@ -169,7 +206,7 @@ function Navbar(props) {
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true,
           }}
           sx={{
             display: { xs: "block", sm: "none" },
@@ -184,12 +221,42 @@ function Navbar(props) {
       </nav>
       <Box component="main" sx={{ p: 3 }}>
         <Toolbar />
-        {/* Render AddSingleVoter dialog with open state and onClose function */}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem onClick={handleAddSingleClick}>Add Single Voter</MenuItem>
+          <MenuItem onClick={handleAddBulkClick}>Add Bulk Voters</MenuItem>
+        </Menu>
+        <Menu
+          anchorEl={mediaAnchorEl}
+          open={Boolean(mediaAnchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem onClick={handleMenuClose}>History</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Gallery</MenuItem>
+        </Menu>
+        <Menu
+          anchorEl={dataAnchorEl}
+          open={Boolean(dataAnchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem onClick={handleMenuClose}>Electoral Areas</MenuItem>
+          <MenuItem onClick={handleMenuClose}>Groups</MenuItem>
+        </Menu>
+        <Menu
+          anchorEl={profileAnchorEl}
+          open={Boolean(profileAnchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+          <MenuItem onClick={logoutHandler}>Logout</MenuItem>
+        </Menu>
         <AddSingleVoter
           open={openAddSingle}
           onClose={() => setOpenAddSingle(false)}
         />
-        {/* Render AddBulkVoters dialog with open state and onClose function */}
         <AddBulkVoters
           open={openAddBulk}
           onClose={() => setOpenAddBulk(false)}
