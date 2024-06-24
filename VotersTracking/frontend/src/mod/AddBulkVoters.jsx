@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { createWorker } from "tesseract.js";
 import {
   Button,
@@ -14,8 +14,6 @@ const AddBulkVoters = ({ open, onClose }) => {
   const [extractedText, setExtractedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
-  const [numProfiles, setNumProfiles] = useState(0);
-
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -25,6 +23,7 @@ const AddBulkVoters = ({ open, onClose }) => {
     if (selectedFile) {
       setIsLoading(true);
       try {
+        // Text extraction
         const worker = await createWorker();
         await worker.loadLanguage("eng");
         await worker.initialize("eng");
@@ -34,52 +33,50 @@ const AddBulkVoters = ({ open, onClose }) => {
         setExtractedText(text);
         await worker.terminate();
 
+        // Image processing
+        const image = await createImageBitmap(selectedFile);
         const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      const image = await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = URL.createObjectURL(selectedFile);
-      });
+        const ctx = canvas.getContext("2d");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        ctx.drawImage(image, 0, 0);
 
-      canvas.width = image.width;
-      canvas.height = image.height;
-      ctx.drawImage(image, 0, 0);
+        // Extract profile pictures
+        const profileWidth = 70;
+        const profileHeight = 70;
+        const numProfiles = Math.floor(image.height / profileHeight);
 
-      const profileWidth = image.width / numProfiles; // Assuming equal width profiles
-      const profileHeight = image.height; // Assuming all profiles have same height
+        for (let i = 0; i < numProfiles; i++) {
+          const profileData = ctx.getImageData(
+            image.width - profileWidth,
+            i * profileHeight,
+            profileWidth,
+            profileHeight
+          );
 
-      for (let i = 0; i < numProfiles; i++) {
-        const profileData = ctx.getImageData(i * profileWidth, 0, profileWidth, profileHeight);
-        const newCanvas = document.createElement("canvas");
-        newCanvas.width = profileWidth;
-        newCanvas.height = profileHeight;
-        newCanvas.getContext("2d").putImageData(profileData, 0, 0);
+          const profileCanvas = document.createElement("canvas");
+          profileCanvas.width = profileWidth;
+          profileCanvas.height = profileHeight;
+          profileCanvas.getContext("2d").putImageData(profileData, 0, 0);
 
-        const profileBlob = await new Promise((resolve, reject) => {
-          newCanvas.toBlob(resolve, "image/png");
-        });
+          const profileBlob = await new Promise((resolve) =>
+            profileCanvas.toBlob(resolve, "image/png")
+          );
 
-        const profileURL = URL.createObjectURL(profileBlob);
-
-        // Download the extracted profile image (optional)
-        const link = document.createElement("a");
-        link.href = profileURL;
-        link.download = `profile_${i + 1}.png`;
-        link.click();
-
-        URL.revokeObjectURL(profileURL); // Cleanup
+          // Download the extracted profile image
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(profileBlob);
+          link.download = `profile_${i + 1}.png`;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      } catch (error) {
+        console.error("Error processing image:", error);
+      } finally {
+        setIsLoading(false);
       }
-
-    } catch (error) {
-      console.error("Error processing image:", error);
-    } finally {
-      setIsLoading(false);
     }
-  }
-};
-
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -92,13 +89,6 @@ const AddBulkVoters = ({ open, onClose }) => {
           onChange={handleFileChange}
           style={{ marginBottom: "10px" }}
         />
-        <TextField
-          label="Number of Profiles"
-          type="number"
-          InputLabelProps={{ shrink: true }}
-          variant="outlined"
-          onChange={(e) => setNumProfiles(e.target.value)}
-        />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="secondary">
@@ -110,7 +100,7 @@ const AddBulkVoters = ({ open, onClose }) => {
           variant="contained"
           disabled={!selectedFile || isLoading}
         >
-          {isLoading ? "Processing..." : "Upload & Extract Text"}
+          {isLoading ? "Processing..." : "Upload & Extract"}
         </Button>
       </DialogActions>
 
