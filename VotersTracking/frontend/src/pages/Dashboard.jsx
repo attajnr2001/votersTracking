@@ -6,6 +6,7 @@ import Chart from "../components/CompareChart";
 import VotersChart from "../components/VotersChart";
 
 const Dashboard = () => {
+  
   return (
     <>
       <Box

@@ -23,6 +23,7 @@ import { useDispatch } from "react-redux";
 import {
   useAddVoterMutation,
   useGetConstituenciesQuery,
+  votersApiSlice,
 } from "../slices/votersApiSlice";
 import { useNavigate } from "react-router-dom";
 
@@ -99,6 +100,7 @@ const AddSingleVoter = ({ open, onClose }) => {
         dor,
         image: imageUrl,
       }).unwrap();
+      dispatch(votersApiSlice.util.invalidateTags(["Voter"]));
 
       // Reset form state
       setSurname("");
@@ -111,15 +113,14 @@ const AddSingleVoter = ({ open, onClose }) => {
       setImage("");
       setImageFile(null);
 
-      onClose(); // Close dialog
+      onClose();
 
       // Refresh the page
       navigate(0);
+      handleSnackbarOpen("Voter added successfully", "success");
     } catch (err) {
       console.error(err);
-      setSnackbarMessage("Error adding voter", err);
-      setSnackbarSeverity("error");
-      setOpenSnackbar(true);
+      handleSnackbarOpen(err?.data?.message || "Error adding voter", "error");
     }
   };
 

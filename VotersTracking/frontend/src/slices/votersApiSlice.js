@@ -12,12 +12,14 @@ export const votersApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Voter"],
     }),
     getVoters: builder.query({
       query: () => ({
         url: VOTERS_URL,
         method: "GET",
       }),
+      providesTags: ["Voter"],
     }),
     getConstituencies: builder.query({
       query: () => ({
