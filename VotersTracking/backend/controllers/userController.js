@@ -47,8 +47,8 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Invalid user data");
   }
-}); 
- 
+});
+
 const logoutUser = (req, res) => {
   res.cookie("jwt", "", {
     httpOnly: true,
@@ -57,4 +57,9 @@ const logoutUser = (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-export { authUser, registerUser, logoutUser };
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({}).select("-password");
+  res.json(users);
+});
+
+export { authUser, registerUser, logoutUser, getUsers };

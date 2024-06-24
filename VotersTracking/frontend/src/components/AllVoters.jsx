@@ -62,19 +62,22 @@ const AllVoters = () => {
   };
 
   const filteredRows = voters
-    ? voters.filter((row) => {
-        let matchesFilter = true;
-        let matchesConstituency = true;
+    ? voters
+        .slice()
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((row) => {
+          let matchesFilter = true;
+          let matchesConstituency = true;
 
-        if (filter === "Males") matchesFilter = row.sex === "M";
-        if (filter === "Females") matchesFilter = row.sex === "F";
-        if (filter === "Below 40") matchesFilter = getAge(row.dob) < 40;
-        if (filter === "Above 40") matchesFilter = getAge(row.dob) >= 40;
+          if (filter === "Males") matchesFilter = row.sex === "M";
+          if (filter === "Females") matchesFilter = row.sex === "F";
+          if (filter === "Below 40") matchesFilter = getAge(row.dob) < 40;
+          if (filter === "Above 40") matchesFilter = getAge(row.dob) >= 40;
 
-        if (constituency) matchesConstituency = row.psCode === constituency;
+          if (constituency) matchesConstituency = row.psCode === constituency;
 
-        return matchesFilter && matchesConstituency;
-      })
+          return matchesFilter && matchesConstituency;
+        })
     : [];
 
   if (isLoadingVoters || isLoadingConstituencies) {
@@ -88,8 +91,13 @@ const AllVoters = () => {
   return (
     <Paper>
       <Box p={2}>
-        <Typography variant="h6" gutterBottom>
-          All Voters
+        <Typography
+          color={"secondary"}
+          variant="h5"
+          sx={{ fontWeight: "bold" }}
+          mb={2}
+        >
+          ALL VOTERS
         </Typography>
         <Box display="flex" gap={2} marginBottom={2}>
           <TextField

@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import RootLayout from "./layouts/RootLayout";
 import PrivateRoute from "./helpers/PrivateRoute";
 import store from "./store";
+import Users from "./components/Users";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="" element={<PrivateRoute />}>
           <Route path="dashboard" element={<RootLayout />}>
             <Route path="" element={<Dashboard />} />
+            <Route path="users" element={<Users />} />
           </Route>
         </Route>
       </Route>

@@ -45,7 +45,7 @@ const addVoter = asyncHandler(async (req, res) => {
 });
 
 const getVoters = asyncHandler(async (req, res) => {
-  const voters = await Voter.find({});
+  const voters = await Voter.find({}).sort({ createdAt: -1 });
   res.json(voters);
 });
 // In voterController.js

@@ -14,6 +14,7 @@ import {
   useGetConstituenciesQuery,
   useGetConstituencyDataQuery,
 } from "../slices/votersApiSlice";
+import { color } from "framer-motion";
 
 ChartJS.register(
   CategoryScale,
@@ -54,6 +55,7 @@ const Chart = () => {
       title: {
         display: true,
         text: "Constituency Comparison",
+        color: "red"
       },
     },
   };
@@ -91,6 +93,7 @@ const Chart = () => {
           value={constituency1}
           onChange={(e) => setConstituency1(e.target.value)}
           sx={{ width: "45%" }}
+          
         >
           {constituencies.map((c) => (
             <MenuItem key={c.psCode} value={c.psCode}>

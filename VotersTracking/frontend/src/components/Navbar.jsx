@@ -22,7 +22,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { logout } from "../slices/authSlice";
 
 const drawerWidth = 240;
-const navItems = ["ADD SINGLE", "ADD BULK", "LOGOUT"];
+const navItems = ["ADD SINGLE", "ADD BULK", "USERS", "LOGOUT"];
 
 function HideOnScroll(props) {
   const { children, window } = props;
@@ -89,6 +89,8 @@ function Navbar(props) {
             <Button
               key={item}
               sx={{ color: "#333" }}
+              component={Link}
+              to={item === "USERS" ? "/users" : "#"}
               onClick={
                 item === "ADD SINGLE"
                   ? handleAddSingleClick
@@ -141,6 +143,8 @@ function Navbar(props) {
                 <Button
                   key={item}
                   sx={{ color: "#fff" }}
+                  component={Link}
+                  to={item === "USERS" ? "/dashboard/users" : "#"}
                   onClick={
                     item === "ADD SINGLE"
                       ? handleAddSingleClick

@@ -9,19 +9,7 @@ const Dashboard = () => {
   
   return (
     <>
-      <Box
-        sx={{
-          display: { xs: "block", md: "flex" },
-          flexDirection: { xs: "column", md: "row" },
-          justifyContent: "space-between",
-          gap: 2,
-          padding: 2,
-        }}
-      >
-        <Widget type="all" />
-        <Widget type="below40" />
-        <Widget type="above40" />
-      </Box>
+
 
       <Box my={3}>
         <AllVoters />
