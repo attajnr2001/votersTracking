@@ -8,14 +8,12 @@ import userRoutes from "./routes/userRoutes.js";
 import { notFound, errorHandler } from './middlewares/errorMiddleware.js';
 import voterRoutes from "./routes/voterRoutes.js";
 import constituencyRoutes from "./routes/constituencyRoutes.js";
-
-
  
 
 const port = process.env.PORT || 5000;
 
 connectDB();
-
+ 
 const app = express();
 
 app.use(express.json());

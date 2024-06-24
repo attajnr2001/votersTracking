@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Close } from "@mui/icons-material";
 import {
   Table,
   TableBody,
@@ -10,17 +11,49 @@ import {
   Button,
   Typography,
   Box,
+  Snackbar,
+  IconButton,
+  Alert,
 } from "@mui/material";
-import { useGetUsersQuery } from "../slices/usersApiSlice";
+import {
+  useGetUsersQuery,
+  useToggleUserStatusMutation,
+} from "../slices/usersApiSlice";
 import AddUserDialog from "../mod/AddUserDialog";
+import { useSelector } from "react-redux";
 
 const Users = () => {
   const [openAddUser, setOpenAddUser] = useState(false);
-  const { data: users, isLoading, error } = useGetUsersQuery();
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const { data: users, isLoading, error, refetch } = useGetUsersQuery();
+  const [toggleUserStatus] = useToggleUserStatusMutation();
+
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const handleToggleStatus = async (userId) => {
+    if (userInfo.role !== "super") {
+      setOpenSnackbar(true);
+      return;
+    }
+
+    try {
+      await toggleUserStatus(userId).unwrap();
+      refetch();
+    } catch (err) {
+      console.error("Failed to toggle user status:", err);
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (error) return <Typography>Error: {error.message}</Typography>;
-
   return (
     <Box>
       <Box
@@ -50,7 +83,10 @@ const Users = () => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
+              <TableCell>Role</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell>Created At</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -58,8 +94,20 @@ const Users = () => {
               <TableRow key={user._id}>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
+                <TableCell>{user.role}</TableCell>
+                <TableCell>{user.status}</TableCell>
                 <TableCell>
                   {new Date(user.createdAt).toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    color={user.status === "active" ? "secondary" : "primary"}
+                    onClick={() => handleToggleStatus(user._id)}
+                    disabled={user.role === "super"}
+                  >
+                    {user.status === "active" ? "Deactivate" : "Activate"}
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -67,6 +115,22 @@ const Users = () => {
         </Table>
       </TableContainer>
       <AddUserDialog open={openAddUser} onClose={() => setOpenAddUser(false)} />
+
+      {/* Snackbar component */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          You do not have permission to toggle users status
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

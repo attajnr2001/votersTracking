@@ -20,7 +20,7 @@ const authUser = asyncHandler(async (req, res) => {
 });
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -33,6 +33,8 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
+    role,
+    // status will be set to 'active' by default
   });
 
   if (user) {
@@ -42,10 +44,32 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
+      status: user.status,
     });
   } else {
     res.status(400);
     throw new Error("Invalid user data");
+  }
+});
+
+const toggleUserStatus = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (user) {
+    user.status = user.status === "active" ? "inactive" : "active";
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      status: updatedUser.status,
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
   }
 });
 
@@ -62,4 +86,4 @@ const getUsers = asyncHandler(async (req, res) => {
   res.json(users);
 });
 
-export { authUser, registerUser, logoutUser, getUsers };
+export { authUser, registerUser, logoutUser, getUsers, toggleUserStatus };

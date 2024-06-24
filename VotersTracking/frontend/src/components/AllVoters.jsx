@@ -19,19 +19,14 @@ import {
   useGetVotersQuery,
   useGetConstituenciesQuery,
 } from "../slices/votersApiSlice";
-
-const getAge = (dob) => {
-  const birthDate = new Date(dob);
-  const ageDifMs = Date.now() - birthDate.getTime();
-  const ageDate = new Date(ageDifMs);
-  return Math.abs(ageDate.getUTCFullYear() - 1970);
-};
+import axios from "axios"; // Make sure to install and import axios
 
 const AllVoters = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filter, setFilter] = useState("");
   const [constituency, setConstituency] = useState("");
+  const [currentDateTime, setCurrentDateTime] = useState(null);
 
   const {
     data: voters,
@@ -43,6 +38,29 @@ const AllVoters = () => {
     error: constituenciesError,
     isLoading: isLoadingConstituencies,
   } = useGetConstituenciesQuery();
+
+  useEffect(() => {
+    const fetchCurrentTime = async () => {
+      try {
+        const response = await axios.get(
+          "https://worldtimeapi.org/api/timezone/Africa/Accra"
+        );
+        setCurrentDateTime(new Date(response.data.datetime));
+      } catch (error) {
+        console.error("Error fetching current time:", error);
+        setCurrentDateTime(new Date()); // Fallback to local time if API fails
+      }
+    };
+
+    fetchCurrentTime();
+  }, []);
+
+  const getAge = (dob) => {
+    const birthDate = new Date(dob);
+    const ageDifMs = Date.now() - birthDate.getTime();
+    const ageDate = new Date(ageDifMs);
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -80,7 +98,7 @@ const AllVoters = () => {
         })
     : [];
 
-  if (isLoadingVoters || isLoadingConstituencies) {
+  if (isLoadingVoters || isLoadingConstituencies || !currentDateTime) {
     return <CircularProgress />;
   }
 
@@ -143,6 +161,7 @@ const AllVoters = () => {
               <TableCell>PS Code</TableCell>
               <TableCell>Id Number</TableCell>
               <TableCell>Date of Birth</TableCell>
+              <TableCell>Age</TableCell>
               <TableCell>Date of Registration</TableCell>
             </TableRow>
           </TableHead>
@@ -162,6 +181,7 @@ const AllVoters = () => {
                   <TableCell>
                     {new Date(row.dob).toLocaleDateString()}
                   </TableCell>
+                  <TableCell>{getAge(row.dob)}</TableCell>
                   <TableCell>
                     {new Date(row.dor).toLocaleDateString()}
                   </TableCell>

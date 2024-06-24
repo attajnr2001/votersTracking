@@ -39,6 +39,14 @@ export const userApiSlice = apiSlice.injectEndpoints({
       providesTags: ["User"],
     }),
 
+    toggleUserStatus: builder.mutation({
+      query: (id) => ({
+        url: `${USERS_URL}/${id}/toggle-status`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["User"],
+    }),
+
     addUser: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}`,
@@ -57,4 +65,5 @@ export const {
   useUpdateUserMutation,
   useGetUsersQuery,
   useAddUserMutation,
+  useToggleUserStatusMutation,
 } = userApiSlice;

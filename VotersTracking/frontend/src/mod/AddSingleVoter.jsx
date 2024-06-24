@@ -48,6 +48,13 @@ const AddSingleVoter = ({ open, onClose }) => {
     isLoading: isLoadingConstituencies,
   } = useGetConstituenciesQuery();
 
+  const handleIdNumberChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ""); // Remove non-digit characters
+    if (value.length <= 10) {
+      setIdNumber(value);
+    }
+  };
+
   // Snackbar state
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -134,7 +141,7 @@ const AddSingleVoter = ({ open, onClose }) => {
   return (
     <>
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle>Add New Voter</DialogTitle>
+        <DialogTitle color={"secondary"} fontWeight={"bold"}>ADD NEW VOTER</DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -208,7 +215,12 @@ const AddSingleVoter = ({ open, onClose }) => {
                 variant="outlined"
                 fullWidth
                 value={idNumber}
-                onChange={(e) => setIdNumber(e.target.value)}
+                onChange={handleIdNumberChange}
+                inputProps={{
+                  maxLength: 10,
+                  pattern: "[0-9]*",
+                  inputMode: "numeric",
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
