@@ -15,8 +15,8 @@ export const votersApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["Voter"],
     }),
     getVoters: builder.query({
-      query: () => ({
-        url: VOTERS_URL,
+      query: (psCode) => ({
+        url: `${VOTERS_URL}?psCode=${psCode}`,
         method: "GET",
       }),
       providesTags: ["Voter"],
@@ -29,21 +29,28 @@ export const votersApiSlice = apiSlice.injectEndpoints({
     }),
 
     getTotalVoters: builder.query({
-      query: () => ({
-        url: `${VOTERS_URL}/count`,
+      query: (psCode) => ({
+        url: `${VOTERS_URL}/count${
+          psCode !== "all" ? `?psCode=${psCode}` : ""
+        }`,
         method: "GET",
       }),
     }),
 
     getVotersBelow40: builder.query({
-      query: () => ({
-        url: `${VOTERS_URL}/count/below40`,
+      query: (psCode) => ({
+        url: `${VOTERS_URL}/count/below40${
+          psCode !== "all" ? `?psCode=${psCode}` : ""
+        }`,
         method: "GET",
       }),
     }),
+
     getVotersAbove40: builder.query({
-      query: () => ({
-        url: `${VOTERS_URL}/count/above40`,
+      query: (psCode) => ({
+        url: `${VOTERS_URL}/count/above40${
+          psCode !== "all" ? `?psCode=${psCode}` : ""
+        }`,
         method: "GET",
       }),
     }),

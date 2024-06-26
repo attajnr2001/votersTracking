@@ -12,6 +12,7 @@ const authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      psCode: user.psCode, // Add this line
     });
   } else {
     res.status(401);

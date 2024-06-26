@@ -14,7 +14,7 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: true, 
     },
     role: {
       type: String,
@@ -25,6 +25,10 @@ const userSchema = mongoose.Schema(
       type: String,
       enum: ["active", "inactive"],
       default: "active",
+    },
+    psCode: {
+      type: String,
+      required: true,
     },
   },
   {

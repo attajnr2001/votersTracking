@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   Table,
   TableBody,
@@ -19,7 +20,7 @@ import {
   useGetVotersQuery,
   useGetConstituenciesQuery,
 } from "../slices/votersApiSlice";
-import axios from "axios"; // Make sure to install and import axios
+import axios from "axios";
 
 const AllVoters = () => {
   const [page, setPage] = useState(0);
@@ -27,12 +28,24 @@ const AllVoters = () => {
   const [filter, setFilter] = useState("");
   const [constituency, setConstituency] = useState("");
   const [currentDateTime, setCurrentDateTime] = useState(null);
+  const [minAge, setMinAge] = useState("");
+  const [maxAge, setMaxAge] = useState("");
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const handleMinAgeChange = (event) => {
+    setMinAge(event.target.value);
+  };
+
+  const handleMaxAgeChange = (event) => {
+    setMaxAge(event.target.value);
+  };
 
   const {
     data: voters,
     error: votersError,
     isLoading: isLoadingVoters,
-  } = useGetVotersQuery();
+  } = useGetVotersQuery(userInfo.psCode);
+
   const {
     data: constituencies,
     error: constituenciesError,
@@ -86,15 +99,36 @@ const AllVoters = () => {
         .filter((row) => {
           let matchesFilter = true;
           let matchesConstituency = true;
+          let matchesAgeRange = true;
+          let matchesPsCode =
+            userInfo.psCode === "all" || row.psCode === userInfo.psCode;
 
           if (filter === "Males") matchesFilter = row.sex === "M";
           if (filter === "Females") matchesFilter = row.sex === "F";
           if (filter === "Below 40") matchesFilter = getAge(row.dob) < 40;
           if (filter === "Above 40") matchesFilter = getAge(row.dob) >= 40;
 
-          if (constituency) matchesConstituency = row.psCode === constituency;
+          // Only apply constituency filter if psCode is "all"
+          if (userInfo.psCode === "all" && constituency) {
+            matchesConstituency = row.psCode === constituency;
+          }
 
-          return matchesFilter && matchesConstituency;
+          const age = getAge(row.dob);
+          if (minAge && maxAge) {
+            matchesAgeRange =
+              age >= parseInt(minAge) && age <= parseInt(maxAge);
+          } else if (minAge) {
+            matchesAgeRange = age >= parseInt(minAge);
+          } else if (maxAge) {
+            matchesAgeRange = age <= parseInt(maxAge);
+          }
+
+          return (
+            matchesFilter &&
+            matchesConstituency &&
+            matchesAgeRange &&
+            matchesPsCode
+          );
         })
     : [];
 
@@ -118,22 +152,27 @@ const AllVoters = () => {
           ALL VOTERS
         </Typography>
         <Box display="flex" gap={2} marginBottom={2}>
-          <TextField
-            select
-            label="Constituency"
-            value={constituency}
-            onChange={handleConstituencyChange}
-            variant="outlined"
-            fullWidth
-          >
-            <MenuItem value="">None</MenuItem>
-            {constituencies &&
-              constituencies.map((constituency) => (
-                <MenuItem key={constituency.psCode} value={constituency.psCode}>
-                  {constituency.name}
-                </MenuItem>
-              ))}
-          </TextField>
+          {userInfo.psCode === "all" && (
+            <TextField
+              select
+              label="Constituency"
+              value={constituency}
+              onChange={handleConstituencyChange}
+              variant="outlined"
+              fullWidth
+            >
+              <MenuItem value="">All</MenuItem>
+              {constituencies &&
+                constituencies.map((constituency) => (
+                  <MenuItem
+                    key={constituency.psCode}
+                    value={constituency.psCode}
+                  >
+                    {constituency.name}
+                  </MenuItem>
+                ))}
+            </TextField>
+          )}
           <TextField
             select
             label="Filter"
@@ -148,6 +187,23 @@ const AllVoters = () => {
             <MenuItem value="Below 40">Below 40</MenuItem>
             <MenuItem value="Above 40">Above 40</MenuItem>
           </TextField>
+
+          <TextField
+            label="Min Age"
+            type="number"
+            value={minAge}
+            onChange={handleMinAgeChange}
+            variant="outlined"
+            fullWidth
+          />
+          <TextField
+            label="Max Age"
+            type="number"
+            value={maxAge}
+            onChange={handleMaxAgeChange}
+            variant="outlined"
+            fullWidth
+          />
         </Box>
       </Box>
       <TableContainer>

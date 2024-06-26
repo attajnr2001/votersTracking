@@ -9,22 +9,22 @@ import {
 } from "../slices/votersApiSlice";
 import "../styles/widget.css";
 
-const Widget = React.memo(({ type }) => {
+const Widget = React.memo(({ type, psCode }) => {
   const {
     data: totalData,
     isLoading: totalLoading,
     error: totalError,
-  } = useGetTotalVotersQuery();
+  } = useGetTotalVotersQuery(psCode);
   const {
     data: below40Data,
     isLoading: below40Loading,
     error: below40Error,
-  } = useGetVotersBelow40Query();
+  } = useGetVotersBelow40Query(psCode);
   const {
     data: above40Data,
     isLoading: above40Loading,
     error: above40Error,
-  } = useGetVotersAbove40Query();
+  } = useGetVotersAbove40Query(psCode);
 
   const getTitle = () => {
     switch (type) {

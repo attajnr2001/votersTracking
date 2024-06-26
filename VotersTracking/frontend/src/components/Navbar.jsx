@@ -25,7 +25,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { logout } from "../slices/authSlice";
 
 const drawerWidth = 240;
-const navItems = ["ADD VOTERS", "MEDIA", "DATA", "USERS"];
+
 function HideOnScroll(props) {
   const { children, window } = props;
   const trigger = useScrollTrigger({
@@ -60,6 +60,11 @@ function Navbar(props) {
   const navigate = useNavigate();
 
   const [logoutApiCall] = useLogoutMutation();
+
+  const navItems = ["ADD VOTERS", "MEDIA", "DATA"];
+  if (userInfo.psCode === "all") {
+    navItems.push("USERS");
+  }
 
   const logoutHandler = async () => {
     try {

@@ -45,13 +45,23 @@ const addVoter = asyncHandler(async (req, res) => {
 });
 
 const getVoters = asyncHandler(async (req, res) => {
-  const voters = await Voter.find({}).sort({ createdAt: -1 });
+  const { psCode } = req.query;
+  let query = {};
+
+  if (psCode !== "all") {
+    query.psCode = psCode;
+  }
+
+  const voters = await Voter.find(query).sort({ createdAt: -1 });
   res.json(voters);
 });
 // In voterController.js
-
 const getTotalVoters = asyncHandler(async (req, res) => {
+  const { psCode } = req.query;
+  let query = psCode && psCode !== "all" ? { psCode } : {};
+
   const counts = await Voter.aggregate([
+    { $match: query },
     {
       $group: {
         _id: null,
@@ -65,11 +75,17 @@ const getTotalVoters = asyncHandler(async (req, res) => {
 });
 
 const getVotersBelow40 = asyncHandler(async (req, res) => {
+  const { psCode } = req.query;
   const fortyYearsAgo = new Date();
   fortyYearsAgo.setFullYear(fortyYearsAgo.getFullYear() - 40);
 
+  let query =
+    psCode && psCode !== "all"
+      ? { psCode, dob: { $gt: fortyYearsAgo } }
+      : { dob: { $gt: fortyYearsAgo } };
+
   const counts = await Voter.aggregate([
-    { $match: { dob: { $gt: fortyYearsAgo } } },
+    { $match: query },
     {
       $group: {
         _id: null,
@@ -83,11 +99,17 @@ const getVotersBelow40 = asyncHandler(async (req, res) => {
 });
 
 const getVotersAbove40 = asyncHandler(async (req, res) => {
+  const { psCode } = req.query;
   const fortyYearsAgo = new Date();
   fortyYearsAgo.setFullYear(fortyYearsAgo.getFullYear() - 40);
 
+  let query =
+    psCode && psCode !== "all"
+      ? { psCode, dob: { $lte: fortyYearsAgo } }
+      : { dob: { $lte: fortyYearsAgo } };
+
   const counts = await Voter.aggregate([
-    { $match: { dob: { $lte: fortyYearsAgo } } },
+    { $match: query },
     {
       $group: {
         _id: null,

@@ -12,7 +12,7 @@ import constituencyRoutes from "./routes/constituencyRoutes.js";
 
 const port = process.env.PORT || 5000;
 
-connectDB();
+connectDB(); 
  
 const app = express();
 
@@ -26,5 +26,5 @@ app.use("/api/constituencies", constituencyRoutes);
 
 
 app.use(notFound);
-app.use(errorHandler);
+app.use(errorHandler); 
 app.listen(port, () => console.log(`Server started on port ${port}`));

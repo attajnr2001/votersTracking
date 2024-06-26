@@ -12,6 +12,6 @@ const theme = createTheme({
     typography: {
         fontFamily: ["Poppins"].join(","),
     },
-});
+}); 
 
 export default theme;
