@@ -10,7 +10,7 @@ import voterRoutes from "./routes/voterRoutes.js";
 import constituencyRoutes from "./routes/constituencyRoutes.js";
  
 
-const port = process.env.PORT || 5000;  
+const port = process.env.PORT || 5000;
 
 connectDB(); 
  

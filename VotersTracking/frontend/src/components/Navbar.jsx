@@ -130,6 +130,8 @@ function Navbar(props) {
     handleMenuClose();
   };
 
+  const userFirstLetter = userInfo?.name ? userInfo.name[0].toUpperCase() : "";
+
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
       <img src={logo} alt="Logo" style={{ width: "100px", margin: "20px 0" }} />
@@ -156,7 +158,15 @@ function Navbar(props) {
             </Button>
           ))}
           <IconButton onClick={handleProfileClick}>
-            <Avatar alt={userInfo?.name} src={userInfo?.avatar} />
+            <Avatar
+              alt={userInfo?.name}
+              src={userInfo?.avatar}
+              sx={{
+                bgcolor: "transparent" ,color: "#fff", border: "3px solid #fff"
+              }}
+            >
+              {!userInfo?.avatar && userFirstLetter}
+            </Avatar>{" "}
           </IconButton>
         </Box>
       </List>
@@ -165,6 +175,7 @@ function Navbar(props) {
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
+
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -215,7 +226,15 @@ function Navbar(props) {
                 </Button>
               ))}
               <IconButton onClick={handleProfileClick} sx={{ color: "#fff" }}>
-                <Avatar alt={userInfo?.name} src={userInfo?.avatar} />
+                <Avatar
+                  alt={userInfo?.name}
+                  src={userInfo?.avatar}
+                  sx={{
+                    bgcolor: "transparent" ,color: "#fff", border: "3px solid #fff" 
+                  }}
+                >
+                  {!userInfo?.avatar && userFirstLetter}
+                </Avatar>
               </IconButton>
             </Box>
           </Toolbar>

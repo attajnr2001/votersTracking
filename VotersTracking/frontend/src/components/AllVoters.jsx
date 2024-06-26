@@ -61,7 +61,7 @@ const AllVoters = () => {
         setCurrentDateTime(new Date(response.data.datetime));
       } catch (error) {
         console.error("Error fetching current time:", error);
-        setCurrentDateTime(new Date()); // Fallback to local time if API fails
+        setCurrentDateTime(new Date()); 
       }
     };
 
