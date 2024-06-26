@@ -9,19 +9,30 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useAddUserMutation } from "../slices/usersApiSlice";
+import {
+  useAddVoterMutation,
+  useGetConstituenciesQuery,
+  votersApiSlice,
+} from "../slices/votersApiSlice";
 
 const AddUserDialog = ({ open, onClose }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState(""); // New state for role
+  const [psCode, setPsCode] = useState("");
 
   const [addUser] = useAddUserMutation();
+  const {
+    data: constituencies,
+    error,
+    isLoading: isLoadingConstituencies,
+  } = useGetConstituenciesQuery();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addUser({ name, email, password, role }).unwrap(); // Include role in the mutation
+      await addUser({ name, email, password, role, psCode }).unwrap(); // Include role in the mutation
       onClose();
     } catch (err) {
       console.error("Failed to add user:", err);
@@ -67,6 +78,23 @@ const AddUserDialog = ({ open, onClose }) => {
         >
           <MenuItem value="admin">Admin</MenuItem>
           <MenuItem value="super">Super</MenuItem>
+        </TextField>
+        <TextField
+          select
+          label="Constituency"
+          variant="outlined"
+          fullWidth
+          value={psCode}
+          onChange={(e) => setPsCode(e.target.value)}
+          disabled={isLoadingConstituencies}
+          margin="dense"
+        >
+          {constituencies &&
+            constituencies.map((constituency) => (
+              <MenuItem key={constituency.psCode} value={constituency.psCode}>
+                {constituency.name}
+              </MenuItem>
+            ))}
         </TextField>
       </DialogContent>
       <DialogActions>
