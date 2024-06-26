@@ -25,6 +25,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import "../styles/gallery.css";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 
 const Gallery = () => {
@@ -160,8 +161,8 @@ const Gallery = () => {
       </Button>
       <Grid container spacing={3} sx={{ mt: 3 }}>
         {galleryItems.map((item) => (
-          <Grid item xs={12} sm={6} md={4} key={item._id}>
-            <Card>
+          <>
+            {/* <Card>
               <CardMedia
                 component="img"
                 height="140"
@@ -181,8 +182,23 @@ const Gallery = () => {
                 <Button onClick={() => handleOpenDialog(item)}>Edit</Button>
                 <Button onClick={() => handleDelete(item._id)}>Delete</Button>
               </CardContent>
-            </Card>
-          </Grid>
+            </Card> */}
+
+            <div class="container">
+              <div class="card__container">
+                <article class="card__article">
+                  <img src={item.image} alt="image" class="card__img" />
+                  <div class="card__data">
+                    <span class="card__description">{item.description}</span>
+                    <h2 class="card__title">{item.name}</h2>
+                    <a href="#" class="card__button">
+                      {item.year}
+                    </a>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </>
         ))}
       </Grid>
 
