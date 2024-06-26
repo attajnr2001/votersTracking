@@ -6,8 +6,9 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
-import ElectoralAreas from "./components/ElectoralAreas"
-
+import ElectoralAreas from "./components/ElectoralAreas";
+import History from "./components/History";
+import Gallery from "./components/Gallery";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
 import Welcome from "./pages/Welcome";
@@ -29,7 +30,8 @@ const App = () => {
             <Route path="" element={<Dashboard />} />
             <Route path="users" element={<Users />} />
             <Route path="electoral-areas" element={<ElectoralAreas />} />
-
+            <Route path="history" element={<History />} />
+            <Route path="gallery" element={<Gallery />} />
           </Route>
         </Route>
       </Route>

@@ -71,6 +71,16 @@ function Navbar(props) {
     handleMenuClose();
   };
 
+  const handleHistoryClick = () => {
+    navigate("/dashboard/history");
+    handleMenuClose();
+  };
+
+  const handleGalleryClick = () => {
+    navigate("/dashboard/gallery");
+    handleMenuClose();
+  };
+
   const logoutHandler = async () => {
     try {
       await logoutApiCall().unwrap();
@@ -244,8 +254,8 @@ function Navbar(props) {
           open={Boolean(mediaAnchorEl)}
           onClose={handleMenuClose}
         >
-          <MenuItem onClick={handleMenuClose}>History</MenuItem>
-          <MenuItem onClick={handleMenuClose}>Gallery</MenuItem>
+          <MenuItem onClick={handleHistoryClick}>History</MenuItem>
+          <MenuItem onClick={handleGalleryClick}>Gallery</MenuItem>
         </Menu>
         <Menu
           anchorEl={dataAnchorEl}
