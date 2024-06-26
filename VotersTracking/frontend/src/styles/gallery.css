@@ -1,207 +1,77 @@
-/*=============== GOOGLE FONTS ===============*/
-
-/*=============== VARIABLES CSS ===============*/
-:root {
-    /*========== Colors ==========*/
-    /*Color mode HSL(hue, saturation, lightness)*/
-    --first-color: hsl(82, 60%, 28%);
-    --title-color: hsl(0, 0%, 15%);
-    --text-color: hsl(0, 0%, 35%);
-    --body-color: hsl(0, 0%, 95%);
-    --container-color: hsl(0, 0%, 100%);
-
-    /*========== Font and typography ==========*/
-    /*.5rem = 8px | 1rem = 16px ...*/
-    --body-font: "Poppins", sans-serif;
-    --h2-font-size: 1.25rem;
-    --small-font-size: .813rem;
-}
-
-/*========== Responsive typography ==========*/
-@media screen and (min-width: 1120px) {
-    :root {
-        --h2-font-size: 1.5rem;
-        --small-font-size: .875rem;
-    }
-}
-
-/*=============== BASE ===============*/
-* {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-}
-
-body {
-    font-family: var(--body-font);
-    background-color: var(--body-color);
-    color: var(--text-color);
-}
-
-img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-}
-
-/*=============== CARD ===============*/
 .container {
-    display: grid;
-    place-items: top;
-    margin-inline: 1.5rem;
-}
-
-.card__container {
-    display: grid;
-    row-gap: 3.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
 }
 
 .card__article {
-    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-}
-
-.card__img {
-    width: 328px;
-    border-radius: .5rem;
-}
-
-.card__data {
-    width: 280px;
-    background-color: var(--container-color);
-    padding: 1rem 2rem;
-    box-shadow: 0 8px 24px hsla(0, 0%, 0%, .15);
-    border-radius: 1rem;
-    position: absolute;
-    bottom: -9rem;
-    left: 0;
-    right: 0;
-    margin-inline: auto;
-    opacity: 0;
-    transition: opacity 1s 1s;
-}
-
-.card__description {
-    display: block;
-    font-size: var(--small-font-size);
-    margin-bottom: .25rem;
-}
-
-.card__title {
-    font-size: var(--h2-font-size);
-    font-weight: 500;
-    color: #333;
-    font-weight: bold;
-}
-
-.card__button {
-    text-decoration: none;
-    font-size: var(--small-font-size);
-    font-weight: 500;
-    color: var(--first-color);
-}
-
-.card__button:hover {
-    text-decoration: underline;
-}
-
-/* Naming animations in hover */
-.card__article:hover .card__data {
-    animation: show-data 1s forwards;
-    opacity: 1;
-    transition: opacity .3s;
+    transition: transform 0.3s ease;
 }
 
 .card__article:hover {
-    animation: remove-overflow 2s forwards;
+    transform: translateY(-5px);
 }
 
-.card__article:not(:hover) {
-    animation: show-overflow 2s forwards;
+.card__img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
 }
 
-.card__article:not(:hover) .card__data {
-    animation: remove-data 1s forwards;
+.card__data {
+    padding: 15px;
 }
 
-/* Card animation */
-@keyframes show-data {
-    50% {
-        transform: translateY(-10rem);
-    }
-
-    100% {
-        transform: translateY(-7rem);
-    }
+.card__description {
+    font-size: 0.9rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
 }
 
-@keyframes remove-overflow {
-    to {
-        overflow: initial;
-    }
+/* Remove this block */
+.card__description:hover::after {
+    content: attr(data-full-text);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    z-index: 1;
+    white-space: normal;
+    max-width: 300px;
+    word-wrap: break-word;
 }
 
-@keyframes remove-data {
-    0% {
-        transform: translateY(-7rem);
-    }
 
-    50% {
-        transform: translateY(-10rem);
-    }
 
-    100% {
-        transform: translateY(.5rem);
-    }
+.card__button {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-top: 10px;
 }
 
-@keyframes show-overflow {
-    0% {
-        overflow: initial;
-        pointer-events: none;
-    }
-
-    50% {
-        overflow: hidden;
-    }
-}
-
-/*=============== BREAKPOINTS ===============*/
-@media screen and (max-width: 340px) {
-    .container {
-        margin-inline: 1rem;
-    }
-
-    .card__data {
-        width: 250px;
-        padding: 1rem;
-    }
-}
-
-/* For medium devices */
-@media screen and (min-width: 768px) {
-    .card__container {
-        grid-template-columns: repeat(2, 1fr);
-        column-gap: 1.5rem;
-    }
-}
-
-/* For large devices */
-@media screen and (min-width: 1120px) {
-    .container {
-        height: 100vh;
-    }
-
-    .card__container {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .card__img {
-        width: 348px;
-    }
-
-    .card__data {
-        width: 316px;
-        padding-inline: 2.5rem;
-    }
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
 }

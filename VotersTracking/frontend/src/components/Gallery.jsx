@@ -13,7 +13,7 @@ import {
   Grid,
   Card,
   CardMedia,
-  CardContent,
+  Tooltip,
   Typography,
   Button,
   TextField,
@@ -174,67 +174,55 @@ const Gallery = () => {
       >
         Add New Item
       </Button>
+
       <Grid container spacing={3} sx={{ mt: 3 }}>
-        {galleryItems.map((item) => (
-          <>
-            {/* <Card>
-              <CardMedia
-                component="img"
-                height="140"
-                image={item.image}
-                alt={item.name}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {item.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Year: {item.year}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Location: {item.location}
-                </Typography>
-                <Button onClick={() => handleOpenDialog(item)}>Edit</Button>
-                <Button onClick={() => handleDelete(item._id)}>Delete</Button>
-              </CardContent>
-            </Card> */}
-
-            <div class="container">
-              <div class="card__container">
-                <article class="card__article">
-                  <img src={item.image} alt="image" class="card__img" />
-                  <div class="card__data">
-                    <span class="card__description">{item.description}</span>
-                    <Typography class="card__title">{item.name.toUpperCase()}</Typography>
-                    <a href="#" class="card__button">
+        <Box className="container">
+          {galleryItems.map((item) => (
+            <article key={item._id} className="card__article">
+              <img src={item.image} alt={item.name} className="card__img" />
+              <Box className="card__data">
+                <Tooltip title={item.description} arrow placement="top">
+                  <span className="card__description">{item.description}</span>
+                </Tooltip>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box>
+                    <Typography sx={{ fontWeight: "bold", color: "#333" }}>
+                      {item.name.toUpperCase()}
+                    </Typography>
+                    <Button variant="contained" size="small">
                       {item.year}
-                    </a>
-
-                    <div className="actions">
-                      <Button
-                        sx={{ mr: 1 }}
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        onClick={() => handleOpenDialog(item)}
-                      >
-                        <EditIcon />
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        onClick={() => handleDelete(item._id)}
-                      >
-                        <DeleteForeverIcon />
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-              </div>
-            </div>
-          </>
-        ))}
+                    </Button>
+                  </Box>
+                  <Box className="actions">
+                    <Button
+                      sx={{ mr: 1 }}
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      onClick={() => handleOpenDialog(item)}
+                    >
+                      <EditIcon />
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleDelete(item._id)}
+                    >
+                      <DeleteForeverIcon />
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            </article>
+          ))}
+        </Box>
       </Grid>
 
       <Dialog open={openDialog} onClose={handleCloseDialog}>
