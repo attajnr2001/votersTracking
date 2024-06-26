@@ -262,9 +262,11 @@ function Navbar(props) {
           open={Boolean(dataAnchorEl)}
           onClose={handleMenuClose}
         >
-          <MenuItem onClick={handleElectoralAreasClick}>
-            Electoral Areas
-          </MenuItem>
+          {userInfo.psCode === "all" && (
+            <MenuItem onClick={handleElectoralAreasClick}>
+              Electoral Areas
+            </MenuItem>
+          )}
           <MenuItem onClick={handleMenuClose}>Groups</MenuItem>
         </Menu>
         <Menu
