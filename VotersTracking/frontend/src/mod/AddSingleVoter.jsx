@@ -19,7 +19,7 @@ import {
   Alert,
 } from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   useAddVoterMutation,
   useGetConstituenciesQuery,
@@ -28,10 +28,13 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const AddSingleVoter = ({ open, onClose }) => {
+  const { userInfo } = useSelector((state) => state.auth);
   const [surname, setSurname] = useState("");
   const [otherNames, setOtherNames] = useState("");
   const [dob, setDob] = useState("");
-  const [psCode, setPsCode] = useState("");
+  const [psCode, setPsCode] = useState(
+    userInfo.psCode !== "all" ? userInfo.psCode : ""
+  );
   const [sex, setSex] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [dor, setDor] = useState("");
@@ -141,7 +144,9 @@ const AddSingleVoter = ({ open, onClose }) => {
   return (
     <>
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle color={"secondary"} fontWeight={"bold"}>ADD NEW VOTER</DialogTitle>
+        <DialogTitle color={"secondary"} fontWeight={"bold"}>
+          ADD NEW VOTER
+        </DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -175,27 +180,29 @@ const AddSingleVoter = ({ open, onClose }) => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                label="Constituency"
-                variant="outlined"
-                fullWidth
-                value={psCode}
-                onChange={(e) => setPsCode(e.target.value)}
-                disabled={isLoadingConstituencies}
-              >
-                {constituencies &&
-                  constituencies.map((constituency) => (
-                    <MenuItem
-                      key={constituency.psCode}
-                      value={constituency.psCode}
-                    >
-                      {constituency.name}
-                    </MenuItem>
-                  ))}
-              </TextField>
-            </Grid>
+            {userInfo.psCode === "all" && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  label="Constituency"
+                  variant="outlined"
+                  fullWidth
+                  value={psCode}
+                  onChange={(e) => setPsCode(e.target.value)}
+                  disabled={isLoadingConstituencies}
+                >
+                  {constituencies &&
+                    constituencies.map((constituency) => (
+                      <MenuItem
+                        key={constituency.psCode}
+                        value={constituency.psCode}
+                      >
+                        {constituency.name}
+                      </MenuItem>
+                    ))}
+                </TextField>
+              </Grid>
+            )}
             <Grid item xs={12} sm={6}>
               <TextField
                 select
