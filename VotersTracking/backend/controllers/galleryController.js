@@ -14,13 +14,13 @@ const getGalleryItems = asyncHandler(async (req, res) => {
 // @route   POST /api/gallery
 // @access  Private
 const createGalleryItem = asyncHandler(async (req, res) => {
-  const { name, year, image, location } = req.body;
-
+  const { name, year, image, location, description } = req.body;
   const galleryItem = await Gallery.create({
     name,
     year,
     image,
     location,
+    description,
   });
 
   if (galleryItem) {
@@ -35,7 +35,7 @@ const createGalleryItem = asyncHandler(async (req, res) => {
 // @route   PUT /api/gallery/:id
 // @access  Private
 const updateGalleryItem = asyncHandler(async (req, res) => {
-  const { name, year, image, location } = req.body;
+  const { name, year, image, location, description } = req.body;
 
   const galleryItem = await Gallery.findById(req.params.id);
 
@@ -44,6 +44,7 @@ const updateGalleryItem = asyncHandler(async (req, res) => {
     galleryItem.year = year || galleryItem.year;
     galleryItem.image = image || galleryItem.image;
     galleryItem.location = location || galleryItem.location;
+    galleryItem.description = description || galleryItem.description;
 
     const updatedGalleryItem = await galleryItem.save();
     res.json(updatedGalleryItem);

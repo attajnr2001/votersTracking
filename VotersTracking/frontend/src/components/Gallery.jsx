@@ -45,6 +45,7 @@ const Gallery = () => {
     year: "",
     image: "",
     location: "",
+    description: "",
   });
   const [editingId, setEditingId] = useState(null);
   const [imageFile, setImageFile] = useState(null);
@@ -61,7 +62,13 @@ const Gallery = () => {
       setEditingId(item._id);
       setImagePreview(item.image);
     } else {
-      setFormData({ name: "", year: "", image: "", location: "" });
+      setFormData({
+        name: "",
+        year: "",
+        image: "",
+        location: "",
+        description: "",
+      });
       setEditingId(null);
       setImagePreview(null);
     }
@@ -71,7 +78,13 @@ const Gallery = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setFormData({ name: "", year: "", image: "", location: "" });
+    setFormData({
+      name: "",
+      year: "",
+      image: "",
+      location: "",
+      description: "",
+    });
     setEditingId(null);
     setImageFile(null);
     setImagePreview(null);
@@ -236,6 +249,16 @@ const Gallery = () => {
             fullWidth
             variant="standard"
             value={formData.location}
+            onChange={handleInputChange}
+          />
+          <TextField
+            margin="dense"
+            name="description"
+            label="Description"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={formData.description}
             onChange={handleInputChange}
           />
           <input
