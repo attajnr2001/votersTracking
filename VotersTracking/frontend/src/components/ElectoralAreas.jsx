@@ -58,6 +58,7 @@ const ElectoralAreas = () => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>PS Code</TableCell>
+              <TableCell>Phone</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
@@ -66,6 +67,7 @@ const ElectoralAreas = () => {
               <TableRow key={constituency._id}>
                 <TableCell>{constituency.name}</TableCell>
                 <TableCell>{constituency.psCode}</TableCell>
+                <TableCell>{"cordinator phone"}</TableCell>
                 <TableCell>
                   <IconButton
                     onClick={() => handleEdit(constituency._id)}
