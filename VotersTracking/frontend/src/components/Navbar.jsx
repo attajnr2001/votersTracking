@@ -190,7 +190,9 @@ function Navbar(props) {
               }}
             >
               <img src={logo} alt="Logo" style={{ height: "40px" }} />
-              <Typography>EFUTU NPP</Typography>
+              <Link to="/dashboard">
+                <Typography color={"white"}>EFUTU NPP</Typography>
+              </Link>
             </Box>
             <Box sx={{ display: { xs: "none", sm: "block" } }}>
               {navItems.map((item) => (

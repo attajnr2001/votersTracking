@@ -54,7 +54,7 @@ const Chart = () => {
       },
       title: {
         display: true,
-        text: "Constituency Comparison",
+        text: "Electoral Areas Comparison",
         color: "red"
       },
     },
@@ -89,7 +89,7 @@ const Chart = () => {
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <TextField
           select
-          label="Constituency 1"
+          label="Electoral Area 1"
           value={constituency1}
           onChange={(e) => setConstituency1(e.target.value)}
           sx={{ width: "45%" }}
@@ -103,7 +103,7 @@ const Chart = () => {
         </TextField>
         <TextField
           select
-          label="Constituency 2"
+          label="Electoral Area 2"
           value={constituency2}
           onChange={(e) => setConstituency2(e.target.value)}
           sx={{ width: "45%" }}

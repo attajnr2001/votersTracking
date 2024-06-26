@@ -155,7 +155,7 @@ const AllVoters = () => {
           {userInfo.psCode === "all" && (
             <TextField
               select
-              label="Constituency"
+              label="Electoral Area"
               value={constituency}
               onChange={handleConstituencyChange}
               variant="outlined"
