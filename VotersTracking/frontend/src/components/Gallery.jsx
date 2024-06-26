@@ -27,6 +27,8 @@ import {
 } from "@mui/material";
 import "../styles/gallery.css";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import EditIcon from "@mui/icons-material/Edit";
 
 const Gallery = () => {
   const {
@@ -207,6 +209,26 @@ const Gallery = () => {
                     <a href="#" class="card__button">
                       {item.year}
                     </a>
+
+                    <div className="actions">
+                      <Button
+                        sx={{ mr: 1 }}
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        onClick={() => handleOpenDialog(item)}
+                      >
+                        <EditIcon />
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                        onClick={() => handleDelete(item._id)}
+                      >
+                        <DeleteForeverIcon />
+                      </Button>
+                    </div>
                   </div>
                 </article>
               </div>
