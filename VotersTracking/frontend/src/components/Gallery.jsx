@@ -1,5 +1,7 @@
-// components/Gallery.jsx
 import React, { useState } from "react";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../helpers/firebaseConfig";
+import { v4 as uuidv4 } from "uuid";
 import {
   useGetGalleryItemsQuery,
   useAddGalleryItemMutation,
@@ -19,7 +21,11 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Avatar,
+  Snackbar,
+  Alert,
 } from "@mui/material";
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
 
 const Gallery = () => {
   const {
@@ -40,15 +46,25 @@ const Gallery = () => {
     location: "",
   });
   const [editingId, setEditingId] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Snackbar state
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const handleOpenDialog = (item = null) => {
     if (item) {
       setFormData(item);
       setEditingId(item._id);
+      setImagePreview(item.image);
     } else {
       setFormData({ name: "", year: "", image: "", location: "" });
       setEditingId(null);
+      setImagePreview(null);
     }
+    setImageFile(null);
     setOpenDialog(true);
   };
 
@@ -56,32 +72,78 @@ const Gallery = () => {
     setOpenDialog(false);
     setFormData({ name: "", year: "", image: "", location: "" });
     setEditingId(null);
+    setImageFile(null);
+    setImagePreview(null);
   };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImageToFirebase = async (file) => {
+    if (!file) return null;
+    const fileRef = ref(storage, `gallery_images/${uuidv4()}`);
+    await uploadBytes(fileRef, file);
+    const downloadURL = await getDownloadURL(fileRef);
+    return downloadURL;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let imageUrl = formData.image;
+      if (imageFile) {
+        imageUrl = await uploadImageToFirebase(imageFile);
+      }
+
+      const updatedFormData = { ...formData, image: imageUrl };
+
       if (editingId) {
-        await updateGalleryItem({ id: editingId, ...formData }).unwrap();
+        await updateGalleryItem({ id: editingId, ...updatedFormData }).unwrap();
       } else {
-        await addGalleryItem(formData).unwrap();
+        await addGalleryItem(updatedFormData).unwrap();
       }
       handleCloseDialog();
+      handleSnackbarOpen("Gallery item saved successfully", "success");
     } catch (err) {
       console.error("Failed to save the gallery item", err);
+      handleSnackbarOpen("Failed to save the gallery item", "error");
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteGalleryItem(id).unwrap();
+      handleSnackbarOpen("Gallery item deleted successfully", "success");
     } catch (err) {
       console.error("Failed to delete the gallery item", err);
+      handleSnackbarOpen("Failed to delete the gallery item", "error");
     }
+  };
+
+  const handleSnackbarOpen = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -152,16 +214,6 @@ const Gallery = () => {
           />
           <TextField
             margin="dense"
-            name="image"
-            label="Image URL"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={formData.image}
-            onChange={handleInputChange}
-          />
-          <TextField
-            margin="dense"
             name="location"
             label="Location"
             type="text"
@@ -170,12 +222,48 @@ const Gallery = () => {
             value={formData.location}
             onChange={handleInputChange}
           />
+          <input
+            accept="image/*"
+            style={{ display: "none" }}
+            id="image-input"
+            type="file"
+            onChange={handleFileChange}
+          />
+          <label htmlFor="image-input">
+            <Button
+              variant="outlined"
+              component="span"
+              startIcon={<PhotoCamera />}
+              sx={{ mt: 2 }}
+            >
+              Upload Image
+            </Button>
+          </label>
+          {imagePreview && (
+            <Box display="flex" alignItems="center" mt={2}>
+              <Avatar sx={{ width: 100, height: 100 }} src={imagePreview} />
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleSubmit}>Save</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
