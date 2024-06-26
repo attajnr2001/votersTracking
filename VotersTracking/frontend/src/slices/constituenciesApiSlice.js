@@ -1,19 +1,19 @@
-// constituenciesApiSlice.js
+// slices/constituenciesApiSlice.js
+import { apiSlice } from "./appSlice";
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit';
+const CONSTITUENCIES_URL = "/api/constituencies";
 
-const BASE_URL = 'http://your-api-url'; // Replace with your actual API base URL
-
-const apiSlice = createApi({
-  reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
+export const constituenciesApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    fetchConstituencies: builder.query({
-      query: () => '/constituencies', // Replace with your actual endpoint to fetch constituencies
+    getConstituencies: builder.query({
+      query: () => ({
+        url: CONSTITUENCIES_URL,
+        method: "GET",
+      }),
+      providesTags: ["Constituency"],
     }),
+    // Add other endpoints for create, update, and delete as needed
   }),
 });
 
-export const { useFetchConstituenciesQuery } = apiSlice;
-
-export default apiSlice.reducer;
+export const { useGetConstituenciesQuery } = constituenciesApiSlice;

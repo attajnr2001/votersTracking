@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Button,
   Table,
@@ -13,27 +13,15 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useGetConstituenciesQuery } from "../slices/constituenciesApiSlice";
 
 const ElectoralAreas = () => {
-  // Sample data - replace this with your actual data source
-  const [electoralAreas, setElectoralAreas] = useState([
-    {
-      id: 1,
-      name: "Area 1",
-      psCode: "PS001",
-      coordinator: "John Doe",
-      phone: "123-456-7890",
-      population: 143,
-    },
-    {
-      id: 2,
-      name: "Area 2",
-      psCode: "PS002",
-      coordinator: "Jane Smith",
-      phone: "098-765-4321",
-      population: 101,
-    },
-  ]);
+  const {
+    data: constituencies,
+    isLoading,
+    isError,
+    error,
+  } = useGetConstituenciesQuery();
 
   const handleAddArea = () => {
     // Implement the logic to add a new electoral area
@@ -49,6 +37,9 @@ const ElectoralAreas = () => {
     // Implement the logic to delete an electoral area
     console.log("Delete area with id:", id);
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error: {error.message}</div>;
 
   return (
     <Box sx={{ p: 3 }}>
@@ -67,29 +58,23 @@ const ElectoralAreas = () => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>PS Code</TableCell>
-              <TableCell>Current Coordinator</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Population</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {electoralAreas.map((area) => (
-              <TableRow key={area.id}>
-                <TableCell>{area.name}</TableCell>
-                <TableCell>{area.psCode}</TableCell>
-                <TableCell>{area.coordinator}</TableCell>
-                <TableCell>{area.phone}</TableCell>
-                <TableCell>{area.population}</TableCell>
+            {constituencies.map((constituency) => (
+              <TableRow key={constituency._id}>
+                <TableCell>{constituency.name}</TableCell>
+                <TableCell>{constituency.psCode}</TableCell>
                 <TableCell>
                   <IconButton
-                    onClick={() => handleEdit(area.id)}
+                    onClick={() => handleEdit(constituency._id)}
                     color="primary"
                   >
                     <EditIcon />
                   </IconButton>
                   <IconButton
-                    onClick={() => handleDelete(area.id)}
+                    onClick={() => handleDelete(constituency._id)}
                     color="error"
                   >
                     <DeleteIcon />
