@@ -6,6 +6,7 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
+import ElectoralAreas from "./components/ElectoralAreas"
 
 import { Provider } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
@@ -27,6 +28,8 @@ const App = () => {
           <Route path="dashboard" element={<RootLayout />}>
             <Route path="" element={<Dashboard />} />
             <Route path="users" element={<Users />} />
+            <Route path="electoral-areas" element={<ElectoralAreas />} />
+
           </Route>
         </Route>
       </Route>

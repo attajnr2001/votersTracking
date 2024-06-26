@@ -66,6 +66,11 @@ function Navbar(props) {
     navItems.push("USERS");
   }
 
+  const handleElectoralAreasClick = () => {
+    navigate("/dashboard/electoral-areas");
+    handleMenuClose();
+  };
+
   const logoutHandler = async () => {
     try {
       await logoutApiCall().unwrap();
@@ -247,7 +252,9 @@ function Navbar(props) {
           open={Boolean(dataAnchorEl)}
           onClose={handleMenuClose}
         >
-          <MenuItem onClick={handleMenuClose}>Electoral Areas</MenuItem>
+          <MenuItem onClick={handleElectoralAreasClick}>
+            Electoral Areas
+          </MenuItem>
           <MenuItem onClick={handleMenuClose}>Groups</MenuItem>
         </Menu>
         <Menu
