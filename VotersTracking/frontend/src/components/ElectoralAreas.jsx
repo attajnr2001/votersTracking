@@ -23,6 +23,7 @@ const ElectoralAreas = () => {
       psCode: "PS001",
       coordinator: "John Doe",
       phone: "123-456-7890",
+      population: 143,
     },
     {
       id: 2,
@@ -30,6 +31,7 @@ const ElectoralAreas = () => {
       psCode: "PS002",
       coordinator: "Jane Smith",
       phone: "098-765-4321",
+      population: 101,
     },
   ]);
 
@@ -67,6 +69,7 @@ const ElectoralAreas = () => {
               <TableCell>PS Code</TableCell>
               <TableCell>Current Coordinator</TableCell>
               <TableCell>Phone</TableCell>
+              <TableCell>Population</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
@@ -77,6 +80,7 @@ const ElectoralAreas = () => {
                 <TableCell>{area.psCode}</TableCell>
                 <TableCell>{area.coordinator}</TableCell>
                 <TableCell>{area.phone}</TableCell>
+                <TableCell>{area.population}</TableCell>
                 <TableCell>
                   <IconButton
                     onClick={() => handleEdit(area.id)}
