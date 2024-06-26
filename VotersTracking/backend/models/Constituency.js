@@ -10,6 +10,18 @@ const constituencySchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    coordinator: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    population: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,

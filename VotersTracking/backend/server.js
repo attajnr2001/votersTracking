@@ -9,7 +9,6 @@ import { notFound, errorHandler } from "./middlewares/errorMiddleware.js";
 import voterRoutes from "./routes/voterRoutes.js";
 import constituencyRoutes from "./routes/constituencyRoutes.js";
 import galleryRoutes from "./routes/galleryRoutes.js";
-import electoralAreaRoutes from "./routes/electoralAreaRoutes.js";
 
 const port = process.env.PORT || 5000;
 
@@ -25,7 +24,6 @@ app.use("/api/users", userRoutes);
 app.use("/api/voters", voterRoutes);
 app.use("/api/constituencies", constituencyRoutes);
 app.use("/api/gallery", galleryRoutes);
-app.use("/api/electoral-areas", electoralAreaRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
