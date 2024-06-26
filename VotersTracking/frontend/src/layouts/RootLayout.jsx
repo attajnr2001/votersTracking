@@ -1,9 +1,10 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { Container, Box } from "@mui/material";
+import { Container, Box, Typography, Button } from "@mui/material";
 import { useSelector } from "react-redux";
 import Widget from "../components/Widget";
+// import { useFetchConstituenciesQuery } from "../slices/constituenciesApiSlice";
 
 const RootLayout = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -11,6 +12,20 @@ const RootLayout = () => {
   return (
     <Container>
       <Navbar />
+      {userInfo.psCode === "all" ? (
+        <>
+          <Button variant="outlined" color="secondary">
+            POLLING STATION CODE: ADMIN
+          </Button>
+        </>
+      ) : (
+        <>
+          <Button variant="outlined" color="secondary">
+            POLLING STATION CODE: {userInfo.psCode}
+          </Button>
+        </>
+      )}
+
       <Box
         sx={{
           display: { xs: "block", md: "flex" },
