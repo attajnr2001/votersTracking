@@ -205,7 +205,7 @@ const Gallery = () => {
                   <img src={item.image} alt="image" class="card__img" />
                   <div class="card__data">
                     <span class="card__description">{item.description}</span>
-                    <h2 class="card__title">{item.name}</h2>
+                    <Typography class="card__title">{item.name.toUpperCase()}</Typography>
                     <a href="#" class="card__button">
                       {item.year}
                     </a>
