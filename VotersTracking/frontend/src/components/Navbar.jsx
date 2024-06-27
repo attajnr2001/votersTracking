@@ -213,9 +213,9 @@ function Navbar(props) {
                 gap: 2,
               }}
             >
-              <img src={logo} alt="Logo" style={{ height: "40px" }} />
+              {/* <img src={logo} alt="Logo" style={{ height: "40px" }} /> */}
               <Link to="/dashboard">
-                <Typography color={"white"}>EFUTU NPP</Typography>
+                <Typography color={"white"}>HOLA</Typography>
               </Link>
             </Box>
             <Box sx={{ display: { xs: "none", sm: "block" } }}>

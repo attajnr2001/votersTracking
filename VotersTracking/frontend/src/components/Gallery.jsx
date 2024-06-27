@@ -16,6 +16,7 @@ import {
   Alert,
   Skeleton,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import "../styles/gallery.css";
 import EditIcon from "@mui/icons-material/Edit";
@@ -201,9 +202,15 @@ const Gallery = () => {
                 <article key={item._id} className="card__article">
                   <img src={item.image} alt={item.name} className="card__img" />
                   <Box className="card__data">
-                    <Typography className="card__description">
-                      {item.description}
-                    </Typography>
+                    <Tooltip
+                      title={item.description}
+                      arrow
+                      placement="top-start"
+                    >
+                      <Typography className="card__description">
+                        {item.description}
+                      </Typography>
+                    </Tooltip>
                     <Box
                       sx={{
                         display: "flex",
@@ -212,7 +219,13 @@ const Gallery = () => {
                       }}
                     >
                       <Box>
-                        <Typography sx={{ fontWeight: "bold", color: "#333", whiteSpace: "nowrap" }}>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                            color: "#333",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
                           {item.name.toUpperCase()}
                         </Typography>
                         <Button variant="contained" size="small">
