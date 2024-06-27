@@ -47,8 +47,10 @@ const GroupMembers = ({ groupId, onBack }) => {
   };
 
   const filteredMembers = members
-    ? members.filter((member) =>
-        member.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ? members.filter(
+        (member) =>
+          member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          member.occupation.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
@@ -151,7 +153,7 @@ const GroupMembers = ({ groupId, onBack }) => {
           Import Group Members
         </Button>
         <TextField
-          label="Search members"
+          label="Search by name or occupation"
           variant="outlined"
           size="small"
           value={searchTerm}
