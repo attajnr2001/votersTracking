@@ -18,6 +18,7 @@ import useScrollTrigger from "@mui/material/useScrollTrigger";
 import Slide from "@mui/material/Slide";
 import AddSingleVoter from "../mod/AddSingleVoter";
 import AddBulkVoters from "../mod/AddBulkVoters";
+import Profile from "../mod/Profile";
 import logo from "../assets/logo.png";
 import { useSelector, useDispatch } from "react-redux";
 import { useLogoutMutation } from "../slices/usersApiSlice";
@@ -53,6 +54,7 @@ function Navbar(props) {
   const [mediaAnchorEl, setMediaAnchorEl] = useState(null);
   const [dataAnchorEl, setDataAnchorEl] = useState(null);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
+  const [openProfile, setOpenProfile] = useState(false);
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -69,6 +71,10 @@ function Navbar(props) {
   const handleElectoralAreasClick = () => {
     navigate("/dashboard/electoral-areas");
     handleMenuClose();
+  };
+
+  const handleProfileClick = (event) => {
+    setProfileAnchorEl(event.currentTarget);
   };
 
   const handleGroupsClick = () => {
@@ -112,8 +118,9 @@ function Navbar(props) {
     setDataAnchorEl(event.currentTarget);
   };
 
-  const handleProfileClick = (event) => {
-    setProfileAnchorEl(event.currentTarget);
+  const handleOpenProfileDialog = () => {
+    setOpenProfile(true);
+    handleMenuClose();
   };
 
   const handleMenuClose = () => {
@@ -303,7 +310,7 @@ function Navbar(props) {
           open={Boolean(profileAnchorEl)}
           onClose={handleMenuClose}
         >
-          <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+          <MenuItem onClick={handleOpenProfileDialog}>Profile</MenuItem>
           <MenuItem onClick={logoutHandler}>Logout</MenuItem>
         </Menu>
         <AddSingleVoter
@@ -313,6 +320,11 @@ function Navbar(props) {
         <AddBulkVoters
           open={openAddBulk}
           onClose={() => setOpenAddBulk(false)}
+        />
+        <Profile
+          open={openProfile}
+          onClose={() => setOpenProfile(false)}
+          user={userInfo}
         />
       </Box>
     </Box>
