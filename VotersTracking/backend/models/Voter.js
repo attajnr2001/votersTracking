@@ -25,7 +25,7 @@ const voterSchema = mongoose.Schema(
     },
     idNumber: {
       type: String,
-      required: true,
+      required: true,  
       unique: true,
     },
     dor: {

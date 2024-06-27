@@ -47,8 +47,10 @@ const GroupMembers = ({ groupId, onBack }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleOpenEditDialog = (member) => {
-    setEditingMember(member);
-    setEditDialogOpen(true);
+    if (member) {
+      setEditingMember(member);
+      setEditDialogOpen(true);
+    }
   };
 
   const handleCloseEditDialog = () => {
@@ -58,7 +60,10 @@ const GroupMembers = ({ groupId, onBack }) => {
 
   const handleEditSubmit = async (updatedMember) => {
     try {
-      await updateGroupMember(updatedMember).unwrap();
+      await updateGroupMember({
+        id: editingMember._id,
+        ...updatedMember,
+      }).unwrap();
       handleCloseEditDialog();
       refetch();
     } catch (error) {
@@ -66,7 +71,6 @@ const GroupMembers = ({ groupId, onBack }) => {
       // Handle error (e.g., show an error message)
     }
   };
-
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -206,14 +210,16 @@ const GroupMembers = ({ groupId, onBack }) => {
                 <TableCell>{member.age}</TableCell>
                 <TableCell>{member.occupation}</TableCell>
                 <TableCell>
-                  <Button
-                    color="primary"
-                    variant="outlined"
-                    size="small"
-                    onClick={handleOpenEditDialog}
-                  >
-                    <EditIcon />
-                  </Button>
+                  <TableCell>
+                    <Button
+                      color="primary"
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleOpenEditDialog(member)}
+                    >
+                      <EditIcon />
+                    </Button>
+                  </TableCell>
                 </TableCell>
               </TableRow>
             ))}
