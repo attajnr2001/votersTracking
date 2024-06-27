@@ -1,5 +1,8 @@
 import React, { useState, useRef } from "react";
 import { createWorker } from "tesseract.js";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../helpers/firebaseConfig";
+import { v4 as uuidv4 } from "uuid";
 import {
   Button,
   Dialog,
@@ -17,6 +20,14 @@ const AddBulkVoters = ({ open, onClose }) => {
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
+  };
+
+  const uploadImageToFirebase = async (blob) => {
+    if (!blob) return null;
+    const fileRef = ref(storage, `voter_images/${uuidv4()}`);
+    await uploadBytes(fileRef, blob);
+    const downloadURL = await getDownloadURL(fileRef);
+    return downloadURL;
   };
 
   const handleUpload = async () => {
@@ -63,12 +74,11 @@ const AddBulkVoters = ({ open, onClose }) => {
             profileCanvas.toBlob(resolve, "image/png")
           );
 
-          // Download the extracted profile image
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(profileBlob);
-          link.download = `profile_${i + 1}.png`;
-          link.click();
-          URL.revokeObjectURL(link.href);
+          // Upload the extracted profile image to Firebase
+          const downloadURL = await uploadImageToFirebase(profileBlob);
+          console.log(`Profile ${i + 1} uploaded. URL:`, downloadURL);
+
+          // You can store these URLs in state or process them further as needed
         }
       } catch (error) {
         console.error("Error processing image:", error);
