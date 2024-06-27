@@ -1,4 +1,4 @@
-// in votersApiSlice.js
+
 import { apiSlice } from "./appSlice";
 
 const VOTERS_URL = "/api/voters";
