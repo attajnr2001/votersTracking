@@ -19,21 +19,20 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import { useImportGroupMembersMutation } from "../slices/groupMembersApiSlice";
+import {
+  useGetGroupMembersQuery,
+  useImportGroupMembersMutation,
+} from "../slices/groupMembersApiSlice";
 import * as XLSX from "xlsx";
 
 const GroupMembers = ({ groupId, onBack }) => {
   // Sample members array
-  const [members, setMembers] = useState([
-    { id: 1, name: "John Doe", phone: "123-456-7890", address: "123 Main St" },
-    { id: 2, name: "Jane Smith", phone: "098-765-4321", address: "456 Elm St" },
-    {
-      id: 3,
-      name: "Bob Johnson",
-      phone: "555-555-5555",
-      address: "789 Oak St",
-    },
-  ]);
+  const {
+    data: members,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetGroupMembersQuery(groupId);
   const [importGroupMembers, { isLoading: isImporting }] =
     useImportGroupMembersMutation();
 
@@ -47,9 +46,19 @@ const GroupMembers = ({ groupId, onBack }) => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredMembers = members.filter((member) =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMembers = members
+    ? members.filter((member) =>
+        member.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+
+  if (isLoading) {
+    return <Typography>Loading members...</Typography>;
+  }
+
+  if (isError) {
+    return <Typography>Error loading members. Please try again.</Typography>;
+  }
 
   const handleOpenImportDialog = () => {
     setOpenImportDialog(true);
@@ -104,6 +113,10 @@ const GroupMembers = ({ groupId, onBack }) => {
 
       reader.readAsArrayBuffer(selectedFile);
     }
+
+    if (result) {
+      refetch();
+    }
   };
 
   return (
@@ -145,23 +158,26 @@ const GroupMembers = ({ groupId, onBack }) => {
           onChange={handleSearch}
         />
       </Box>
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Address</TableCell>
+              <TableCell>Number</TableCell>
+              <TableCell>Gender</TableCell>
+              <TableCell>Age</TableCell>
+              <TableCell>Occupation</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredMembers.map((member) => (
-              <TableRow key={member.id}>
+              <TableRow key={member._id}>
                 <TableCell>{member.name}</TableCell>
-                <TableCell>{member.phone}</TableCell>
-                <TableCell>{member.address}</TableCell>
+                <TableCell>{member.number}</TableCell>
+                <TableCell>{member.gender}</TableCell>
+                <TableCell>{member.age}</TableCell>
+                <TableCell>{member.occupation}</TableCell>
                 <TableCell>
                   <Button color="primary" variant="outlined" size="small">
                     <EditIcon />
