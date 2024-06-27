@@ -15,6 +15,7 @@ const authUser = asyncHandler(async (req, res) => {
       email: user.email,
       psCode: user.psCode,
       status: user.status,
+      role: user.role,
     });
   } else {
     res.status(401);
