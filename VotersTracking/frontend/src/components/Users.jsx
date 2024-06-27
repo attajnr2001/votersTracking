@@ -54,6 +54,7 @@ const Users = () => {
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (error) return <Typography>Error: {error.message}</Typography>;
+
   return (
     <Box>
       <Box
@@ -86,6 +87,7 @@ const Users = () => {
               <TableCell>Role</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Phone</TableCell>
+              <TableCell>Constituency</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -98,8 +100,9 @@ const Users = () => {
                 <TableCell>{user.role}</TableCell>
                 <TableCell>{user.status}</TableCell>
                 <TableCell>{user.phone}</TableCell>
+                <TableCell>{user.constituencyName}</TableCell>
                 <TableCell>
-                  {new Date(user.createdAt).toLocaleString()}
+                  {new Date(user.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <Button
@@ -118,7 +121,6 @@ const Users = () => {
       </TableContainer>
       <AddUserDialog open={openAddUser} onClose={() => setOpenAddUser(false)} />
 
-      {/* Snackbar component */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

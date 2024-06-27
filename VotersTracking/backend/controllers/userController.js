@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/User.js";
+import Constituency from "../models/Constituency.js";
 import generateToken from "../utils/generateToken.js";
 
 const authUser = asyncHandler(async (req, res) => {
@@ -89,7 +90,18 @@ const logoutUser = (req, res) => {
 
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({}).select("-password");
-  res.json(users);
+
+  const usersWithConstituency = await Promise.all(
+    users.map(async (user) => {
+      const constituency = await Constituency.findOne({ psCode: user.psCode });
+      return {
+        ...user.toObject(),
+        constituencyName: constituency ? constituency.name : "N/A",
+      };
+    })
+  );
+
+  res.json(usersWithConstituency);
 });
 
 export { authUser, registerUser, logoutUser, getUsers, toggleUserStatus };
