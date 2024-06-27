@@ -11,41 +11,106 @@ import {
   Box,
   TextField,
   IconButton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SearchIcon from "@mui/icons-material/Search";
 import SortIcon from "@mui/icons-material/Sort";
-import { useGetConstituenciesQuery } from "../slices/constituenciesApiSlice";
+import {
+  useGetConstituenciesQuery,
+  useAddConstituencyMutation,
+  useUpdateConstituencyMutation,
+  useDeleteConstituencyMutation,
+} from "../slices/constituenciesApiSlice";
+import AddElectoralArea from "../mod/AddElectoralArea";
 
 const ElectoralAreas = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortByPopulation, setSortByPopulation] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    psCode: "",
+  });
+  const [editingId, setEditingId] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const {
     data: constituencies,
     isLoading,
     isError,
     error,
-  } = useGetConstituenciesQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
+  } = useGetConstituenciesQuery();
+
+  const [addConstituency] = useAddConstituencyMutation();
+  const [updateConstituency] = useUpdateConstituencyMutation();
+  const [deleteConstituency] = useDeleteConstituencyMutation();
+
+  const handleSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const handleAddArea = () => {
-    console.log("Add new electoral area");
+    setFormData({ name: "", psCode: "" });
+    setEditingId(null);
+    setOpenDialog(true);
   };
 
   const handleEdit = (id) => {
-    console.log("Edit area with id:", id);
+    const areaToEdit = constituencies.find((area) => area._id === id);
+    setFormData({
+      _id: areaToEdit._id,
+      name: areaToEdit.name,
+      psCode: areaToEdit.psCode,
+    });
+    setEditingId(id);
+    setOpenDialog(true);
   };
 
-  const handleDelete = (id) => {
-    console.log("Delete area with id:", id);
+  const handleDelete = async (id) => {
+    try {
+      await deleteConstituency(id).unwrap();
+      handleSnackbar("Constituency deleted successfully");
+    } catch (err) {
+      handleSnackbar("Failed to delete constituency", "error");
+    }
   };
 
-  const handleSearch = () => {
-    // The search is already handled in the filteredAndSortedConstituencies useMemo
-    console.log("Searching for:", searchTerm);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setFormData({ name: "", psCode: "" });
+    setEditingId(null);
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (editingId) {
+        await updateConstituency(formData).unwrap();
+        handleSnackbar("Constituency updated successfully");
+      } else {
+        await addConstituency(formData).unwrap();
+        handleSnackbar("Constituency added successfully");
+      }
+      handleCloseDialog();
+    } catch (err) {
+      handleSnackbar("Failed to save constituency", "error");
+    }
   };
 
   const toggleSort = () => {
@@ -140,6 +205,30 @@ const ElectoralAreas = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <AddElectoralArea
+        open={openDialog}
+        onClose={handleCloseDialog}
+        formData={formData}
+        editingId={editingId}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+      />
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

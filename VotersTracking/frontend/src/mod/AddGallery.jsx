@@ -23,8 +23,8 @@ const AddGallery = ({
 }) => {
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>
-        {editingId ? "Edit Gallery Item" : "Add New Gallery Item"}
+      <DialogTitle color={"secondary"}>
+        {editingId ? "EDIT GALLERY" : "ADD GALLERY"}
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -92,8 +92,12 @@ const AddGallery = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit}>Save</Button>
+        <Button color="secondary" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={handleSubmit}>
+          Save
+        </Button>
       </DialogActions>
     </Dialog>
   );

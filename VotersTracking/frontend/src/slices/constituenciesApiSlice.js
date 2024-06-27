@@ -12,9 +12,35 @@ export const constituenciesApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Constituency"],
     }),
-    // Add other constituency-related endpoints here if needed
+    addConstituency: builder.mutation({
+      query: (data) => ({
+        url: CONSTITUENCIES_URL,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Constituency"],
+    }),
+    updateConstituency: builder.mutation({
+      query: (data) => ({
+        url: `${CONSTITUENCIES_URL}/${data._id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Constituency"],
+    }),
+    deleteConstituency: builder.mutation({
+      query: (id) => ({
+        url: `${CONSTITUENCIES_URL}/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Constituency"],
+    }),
   }),
-  overrideExisting: false,
 });
 
-export const { useGetConstituenciesQuery } = constituenciesApiSlice;
+export const {
+  useGetConstituenciesQuery,
+  useAddConstituencyMutation,
+  useUpdateConstituencyMutation,
+  useDeleteConstituencyMutation,
+} = constituenciesApiSlice;

@@ -28,13 +28,10 @@ const getConstituencies = asyncHandler(async (req, res) => {
 // @route   POST /api/constituencies
 // @access  Private
 const createConstituency = asyncHandler(async (req, res) => {
-  const { name, psCode, coordinator, phone, population } = req.body;
+  const { name, psCode } = req.body;
   const constituency = await Constituency.create({
     name,
     psCode,
-    coordinator,
-    phone,
-    population,
   });
 
   if (constituency) {
@@ -49,16 +46,13 @@ const createConstituency = asyncHandler(async (req, res) => {
 // @route   PUT /api/constituencies/:id
 // @access  Private
 const updateConstituency = asyncHandler(async (req, res) => {
-  const { name, psCode, coordinator, phone, population } = req.body;
+  const { name, psCode } = req.body;
 
   const constituency = await Constituency.findById(req.params.id);
 
   if (constituency) {
     constituency.name = name || constituency.name;
     constituency.psCode = psCode || constituency.psCode;
-    constituency.coordinator = coordinator || constituency.coordinator;
-    constituency.phone = phone || constituency.phone;
-    constituency.population = population || constituency.population;
 
     const updatedConstituency = await constituency.save();
     res.json(updatedConstituency);
