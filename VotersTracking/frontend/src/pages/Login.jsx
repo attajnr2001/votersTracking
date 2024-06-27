@@ -38,14 +38,18 @@ const Login = () => {
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
- 
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await login({ email, password }).unwrap();
-      dispatch(setCredentials({ ...res }));
-      navigate("/dashboard");
+      if (res.status === "active") {
+        dispatch(setCredentials({ ...res }));
+        navigate("/dashboard");
+      } else {
+        setError("Your account is inactive. Please contact the administrator.");
+      }
     } catch (err) {
       setError(err?.data?.message || err.error || "Login failed");
       console.log(err?.data?.message || err.error);

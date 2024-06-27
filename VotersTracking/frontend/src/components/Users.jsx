@@ -14,6 +14,7 @@ import {
   Snackbar,
   IconButton,
   Alert,
+  TextField,
 } from "@mui/material";
 import {
   useGetUsersQuery,
@@ -25,6 +26,7 @@ import { useSelector } from "react-redux";
 const Users = () => {
   const [openAddUser, setOpenAddUser] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: users, isLoading, error, refetch } = useGetUsersQuery();
   const [toggleUserStatus] = useToggleUserStatusMutation();
@@ -32,7 +34,7 @@ const Users = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
   const handleToggleStatus = async (userId) => {
-    if (userInfo.role !== "super") {
+    if (userInfo.status === "admin") {
       setOpenSnackbar(true);
       return;
     }
@@ -54,6 +56,14 @@ const Users = () => {
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (error) return <Typography>Error: {error.message}</Typography>;
+
+  const filteredUsers = users
+    ? users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.constituencyName.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   return (
     <Box>
@@ -78,6 +88,14 @@ const Users = () => {
           Add User
         </Button>
       </Box>
+      <TextField
+        label="Search by name or constituency"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -93,7 +111,7 @@ const Users = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <TableRow key={user._id}>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
