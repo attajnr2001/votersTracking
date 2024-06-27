@@ -19,8 +19,9 @@ const AddUserDialog = ({ open, onClose }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState(""); // New state for role
+  const [role, setRole] = useState("");
   const [psCode, setPsCode] = useState("");
+  const [phone, setPhone] = useState("");
 
   const [addUser] = useAddUserMutation();
   const {
@@ -32,7 +33,7 @@ const AddUserDialog = ({ open, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addUser({ name, email, password, role, psCode }).unwrap(); // Include role in the mutation
+      await addUser({ name, email, password, role, psCode, phone }).unwrap(); // Include role in the mutation
       onClose();
     } catch (err) {
       console.error("Failed to add user:", err);
@@ -67,6 +68,14 @@ const AddUserDialog = ({ open, onClose }) => {
           fullWidth
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+        />
+        <TextField
+          margin="dense"
+          label="Phone"
+          type="phone"
+          fullWidth
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
         />
         <TextField
           select

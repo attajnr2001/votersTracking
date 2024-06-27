@@ -21,7 +21,7 @@ const authUser = asyncHandler(async (req, res) => {
 });
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role, psCode } = req.body;
+  const { name, email, password, role, psCode, phone } = req.body;
 
   const userExists = await User.findOne({ email });
 
@@ -36,6 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
     password,
     role,
     psCode,
+    phone,
     // status will be set to 'active' by default
   });
 
@@ -49,6 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
       role: user.role,
       status: user.status,
       psCode: user.psCode,
+      phone: user.phone,
     });
   } else {
     res.status(400);
@@ -69,6 +71,7 @@ const toggleUserStatus = asyncHandler(async (req, res) => {
       email: updatedUser.email,
       role: updatedUser.role,
       status: updatedUser.status,
+      phone: updatedUser.phone,
     });
   } else {
     res.status(404);

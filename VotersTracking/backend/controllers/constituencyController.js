@@ -1,12 +1,22 @@
 import asyncHandler from "express-async-handler";
 import Constituency from "../models/Constituency.js";
+import User from "../models/User.js";
 
 // @desc    Get all constituencies
 // @route   GET /api/constituencies
 // @access  Public
 const getConstituencies = asyncHandler(async (req, res) => {
   const constituencies = await Constituency.find({});
-  res.json(constituencies);
+  const constituenciesWithCoordinatorPhone = await Promise.all(
+    constituencies.map(async (constituency) => {
+      const coordinator = await User.findOne({ psCode: constituency.psCode });
+      return {
+        ...constituency.toObject(),
+        coordinatorPhone: coordinator ? coordinator.phone : "N/A", 
+      };
+    })
+  );
+  res.json(constituenciesWithCoordinatorPhone);
 });
 
 // @desc    Create a new constituency

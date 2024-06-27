@@ -12,8 +12,9 @@ export const constituenciesApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["Constituency"],
     }),
-    // Add other endpoints for create, update, and delete as needed
+    // Add other constituency-related endpoints here if needed
   }),
+  overrideExisting: false,
 });
 
 export const { useGetConstituenciesQuery } = constituenciesApiSlice;

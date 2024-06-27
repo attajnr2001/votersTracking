@@ -85,6 +85,7 @@ const Users = () => {
               <TableCell>Email</TableCell>
               <TableCell>Role</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Phone</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -96,6 +97,7 @@ const Users = () => {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.role}</TableCell>
                 <TableCell>{user.status}</TableCell>
+                <TableCell>{user.phone}</TableCell>
                 <TableCell>
                   {new Date(user.createdAt).toLocaleString()}
                 </TableCell>

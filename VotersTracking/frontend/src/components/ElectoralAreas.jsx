@@ -21,7 +21,9 @@ const ElectoralAreas = () => {
     isLoading,
     isError,
     error,
-  } = useGetConstituenciesQuery();
+  } = useGetConstituenciesQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
 
   const handleAddArea = () => {
     // Implement the logic to add a new electoral area
@@ -67,7 +69,7 @@ const ElectoralAreas = () => {
               <TableRow key={constituency._id}>
                 <TableCell>{constituency.name}</TableCell>
                 <TableCell>{constituency.psCode}</TableCell>
-                <TableCell>{"cordinator phone"}</TableCell>
+                <TableCell>{constituency.coordinatorPhone}</TableCell>
                 <TableCell>
                   <IconButton
                     onClick={() => handleEdit(constituency._id)}

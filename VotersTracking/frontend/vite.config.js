@@ -9,6 +9,9 @@ export default defineConfig(({ mode }) => {
     define: {
       "process.env": env,
     },
+    optimizeDeps: {
+      exclude: ["@reduxjs/toolkit/query/react"],
+    },
     plugins: [react()],
     server: {
       proxy: {
