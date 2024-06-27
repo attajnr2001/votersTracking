@@ -57,7 +57,10 @@ const importMembersFromExcel = asyncHandler(async (req, res) => {
 const getGroupMembers = async (req, res) => {
   try {
     const { groupId } = req.params;
-    const groupMembers = await GroupMember.find({ group: groupId });
+    const groupMembers = await GroupMember.find({ group: groupId }).populate(
+      "group",
+      "name"
+    );
     res.status(200).json(groupMembers);
   } catch (error) {
     res.status(500).json({ message: error.message });

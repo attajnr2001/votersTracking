@@ -6,6 +6,7 @@ import {
   DialogActions,
   TextField,
   Button,
+  MenuItem,
 } from "@mui/material";
 
 const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
@@ -60,13 +61,17 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
             margin="normal"
           />
           <TextField
+            select
             name="gender"
             label="Gender"
             value={editedMember.gender}
             onChange={handleChange}
             fullWidth
             margin="normal"
-          />
+          >
+            <MenuItem value="male">Male</MenuItem>
+            <MenuItem value="female">Female</MenuItem>
+          </TextField>
           <TextField
             name="age"
             label="Age"

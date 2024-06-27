@@ -16,6 +16,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -26,15 +28,20 @@ import {
 } from "../slices/groupMembersApiSlice";
 import * as XLSX from "xlsx";
 import EditMemberDialog from "../mod/EditMemberDialog";
+import { useGetGroupByIdQuery } from "../slices/groupsApiSlice";
 
 const GroupMembers = ({ groupId, onBack }) => {
   // Sample members array
   const {
-    data: members,
+    data: groupData,
     isLoading,
     isError,
     refetch,
   } = useGetGroupMembersQuery(groupId);
+
+  const groupName = groupData && groupData[0]?.group?.name;
+  const members = groupData || [];
+
   const [importGroupMembers, { isLoading: isImporting }] =
     useImportGroupMembersMutation();
   const [updateGroupMember] = useUpdateGroupMemberMutation();
@@ -45,6 +52,8 @@ const GroupMembers = ({ groupId, onBack }) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const handleOpenEditDialog = (member) => {
     if (member) {
@@ -66,10 +75,20 @@ const GroupMembers = ({ groupId, onBack }) => {
       }).unwrap();
       handleCloseEditDialog();
       refetch();
+      setSnackbarMessage("Member updated successfully");
+      setSnackbarOpen(true);
     } catch (error) {
       console.error("Failed to update member:", error);
-      // Handle error (e.g., show an error message)
+      setSnackbarMessage("Failed to update member");
+      setSnackbarOpen(true);
     }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
   };
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -162,11 +181,11 @@ const GroupMembers = ({ groupId, onBack }) => {
       >
         <Typography
           variant="h5"
-          color={"secondary"}
-          fontWeight={"bold"}
+          color="secondary"
+          fontWeight="bold"
           gutterBottom
         >
-          GROUP MEMBERS
+          {groupName ? `${groupName} - GROUP MEMBERS` : "GROUP MEMBERS"}
         </Typography>
         <IconButton color="secondary" onClick={onBack}>
           <ArrowBackIosIcon />
@@ -273,6 +292,20 @@ const GroupMembers = ({ groupId, onBack }) => {
         member={editingMember}
         onSubmit={handleEditSubmit}
       />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

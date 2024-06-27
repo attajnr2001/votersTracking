@@ -35,6 +35,11 @@ export const groupsApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Group"],
     }),
+
+    getGroupById: builder.query({
+      query: (id) => `${GROUPS_URL}/${id}`,
+      providesTags: ["Group"],
+    }),
   }),
 });
 
@@ -43,4 +48,5 @@ export const {
   useAddGroupMutation,
   useUpdateGroupMutation,
   useDeleteGroupMutation,
+  useGetGroupByIdQuery,
 } = groupsApiSlice;
