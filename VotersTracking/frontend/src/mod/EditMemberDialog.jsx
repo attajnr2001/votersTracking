@@ -41,7 +41,7 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Edit Member</DialogTitle>
+      <DialogTitle color={"secondary"} sx={{fontWeight:"bold"}}>EDIT MEMBER</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -90,8 +90,8 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
             margin="normal"
           />
           <DialogActions>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button type="submit" color="primary">
+            <Button color="secondary" onClick={onClose}>Cancel</Button>
+            <Button type="submit" color="primary" variant="contained"> 
               Save
             </Button>
           </DialogActions>
