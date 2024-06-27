@@ -1,0 +1,99 @@
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+} from "@mui/material";
+
+const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
+  const [editedMember, setEditedMember] = useState({
+    name: "",
+    number: "",
+    gender: "",
+    age: "",
+    occupation: "",
+  });
+
+  useEffect(() => {
+    if (member) {
+      setEditedMember({
+        name: member.name || "",
+        number: member.number || "",
+        gender: member.gender || "",
+        age: member.age || "",
+        occupation: member.occupation || "",
+      });
+    }
+  }, [member]);
+
+  const handleChange = (e) => {
+    setEditedMember({ ...editedMember, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(editedMember);
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Edit Member</DialogTitle>
+      <DialogContent>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            name="name"
+            label="Name"
+            value={editedMember.name}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="number"
+            label="Number"
+            value={editedMember.number}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="gender"
+            label="Gender"
+            value={editedMember.gender}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="age"
+            label="Age"
+            type="number"
+            value={editedMember.age}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="occupation"
+            label="Occupation"
+            value={editedMember.occupation}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <DialogActions>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button type="submit" color="primary">
+              Save
+            </Button>
+          </DialogActions>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default EditMemberDialog;

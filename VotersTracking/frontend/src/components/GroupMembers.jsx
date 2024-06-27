@@ -22,8 +22,10 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import {
   useGetGroupMembersQuery,
   useImportGroupMembersMutation,
+  useUpdateGroupMemberMutation,
 } from "../slices/groupMembersApiSlice";
 import * as XLSX from "xlsx";
+import EditMemberDialog from "../mod/EditMemberDialog";
 
 const GroupMembers = ({ groupId, onBack }) => {
   // Sample members array
@@ -35,12 +37,35 @@ const GroupMembers = ({ groupId, onBack }) => {
   } = useGetGroupMembersQuery(groupId);
   const [importGroupMembers, { isLoading: isImporting }] =
     useImportGroupMembersMutation();
+  const [updateGroupMember] = useUpdateGroupMemberMutation();
 
   const [openImportDialog, setOpenImportDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isValidFile, setIsValidFile] = useState(false);
-
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleOpenEditDialog = (member) => {
+    setEditingMember(member);
+    setEditDialogOpen(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditingMember(null);
+    setEditDialogOpen(false);
+  };
+
+  const handleEditSubmit = async (updatedMember) => {
+    try {
+      await updateGroupMember(updatedMember).unwrap();
+      handleCloseEditDialog();
+      refetch();
+    } catch (error) {
+      console.error("Failed to update member:", error);
+      // Handle error (e.g., show an error message)
+    }
+  };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -181,7 +206,12 @@ const GroupMembers = ({ groupId, onBack }) => {
                 <TableCell>{member.age}</TableCell>
                 <TableCell>{member.occupation}</TableCell>
                 <TableCell>
-                  <Button color="primary" variant="outlined" size="small">
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    size="small"
+                    onClick={handleOpenEditDialog}
+                  >
                     <EditIcon />
                   </Button>
                 </TableCell>
@@ -230,6 +260,13 @@ const GroupMembers = ({ groupId, onBack }) => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <EditMemberDialog
+        open={editDialogOpen}
+        onClose={handleCloseEditDialog}
+        member={editingMember}
+        onSubmit={handleEditSubmit}
+      />
     </Box>
   );
 };
