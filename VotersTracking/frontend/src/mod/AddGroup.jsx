@@ -8,7 +8,7 @@ import {
   DialogActions,
 } from "@mui/material";
 
-const AddElectoralArea = ({
+const AddGroup = ({
   open,
   onClose,
   formData,
@@ -18,15 +18,15 @@ const AddElectoralArea = ({
 }) => {
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>
-        {editingId ? "EDIT ELECTORAL AREA" : "ADD ELECTORAL AREA"}
+      <DialogTitle color={"secondary"}>
+        {editingId ? "EDIT GROUP" : "ADD GROUP"}
       </DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
           name="name"
-          label="Name"
+          label="Group Name"
           type="text"
           fullWidth
           value={formData.name}
@@ -34,11 +34,20 @@ const AddElectoralArea = ({
         />
         <TextField
           margin="dense"
-          name="psCode"
-          label="PS Code"
+          name="leaderName"
+          label="Leader's Name"
           type="text"
           fullWidth
-          value={formData.psCode}
+          value={formData.leaderName}
+          onChange={handleInputChange}
+        />
+        <TextField
+          margin="dense"
+          name="leaderPhone"
+          label="Leader's Phone"
+          type="tel"
+          fullWidth
+          value={formData.leaderPhone}
           onChange={handleInputChange}
         />
       </DialogContent>
@@ -54,4 +63,4 @@ const AddElectoralArea = ({
   );
 };
 
-export default AddElectoralArea;
+export default AddGroup;

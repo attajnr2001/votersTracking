@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SortIcon from "@mui/icons-material/Sort";
+import SortIcon from "@mui/icons-material/Sort"; 
 import {
   useGetConstituenciesQuery,
   useAddConstituencyMutation,

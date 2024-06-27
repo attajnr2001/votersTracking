@@ -10,35 +10,110 @@ import {
   Button,
   Typography,
   Box,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import AddGroup from "../mod/AddGroup";
+import {
+  useGetGroupsQuery,
+  useAddGroupMutation,
+  useUpdateGroupMutation,
+  useDeleteGroupMutation,
+} from "../slices/groupsApiSlice";
 
 const Groups = () => {
-  // Mock data for demonstration
-  const [groups, setGroups] = useState([
-    {
-      id: 1,
-      name: "Group A",
-      leaderName: "John Doe",
-      leaderPhone: "123-456-7890",
-    },
-    {
-      id: 2,
-      name: "Group B",
-      leaderName: "Jane Smith",
-      leaderPhone: "098-765-4321",
-    },
-    // Add more mock data as needed
-  ]);
+  const { data: groups, isLoading, error } = useGetGroupsQuery();
+  const [addGroup] = useAddGroupMutation();
+  const [updateGroup] = useUpdateGroupMutation();
+  const [deleteGroup] = useDeleteGroupMutation();
 
-  const handleAddGroup = () => {
-    // Implement add group functionality
-    console.log("Add group clicked");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    leaderName: "",
+    leaderPhone: "",
+  });
+  const [editingId, setEditingId] = useState(null);
+
+  // Snackbar state
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const handleOpenDialog = (group = null) => {
+    if (group) {
+      setFormData(group);
+      setEditingId(group._id);
+    } else {
+      setFormData({
+        name: "",
+        leaderName: "",
+        leaderPhone: "",
+      });
+      setEditingId(null);
+    }
+    setOpenDialog(true);
   };
 
-  const handleViewMembers = (groupId) => {
-    // Implement view members functionality
-    console.log("View members clicked for group:", groupId);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setFormData({
+      name: "",
+      leaderName: "",
+      leaderPhone: "",
+    });
+    setEditingId(null);
   };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      if (editingId) {
+        await updateGroup({ id: editingId, ...formData }).unwrap();
+        handleSnackbarOpen("Group updated successfully", "success");
+      } else {
+        await addGroup(formData).unwrap();
+        handleSnackbarOpen("Group added successfully", "success");
+      }
+      handleCloseDialog();
+    } catch (err) {
+      console.error("Failed to save the group", err);
+      handleSnackbarOpen("Failed to save the group", "error");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteGroup(id).unwrap();
+      handleSnackbarOpen("Group deleted successfully", "success");
+    } catch (err) {
+      console.error("Failed to delete the group", err);
+      handleSnackbarOpen("Failed to delete the group", "error");
+    }
+  };
+
+  const handleSnackbarOpen = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
+  if (isLoading) return <CircularProgress />;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <Box>
@@ -56,7 +131,11 @@ const Groups = () => {
         >
           GROUPS
         </Typography>
-        <Button variant="contained" color="primary" onClick={handleAddGroup}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleOpenDialog()}
+        >
           Add Group
         </Button>
       </Box>
@@ -67,29 +146,68 @@ const Groups = () => {
               <TableCell>Name</TableCell>
               <TableCell>Leader's Name</TableCell>
               <TableCell>Leader's Phone</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell sx={{ textAlign: "center" }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {groups.map((group) => (
-              <TableRow key={group.id}>
-                <TableCell>{group.name}</TableCell>
-                <TableCell>{group.leaderName}</TableCell>
-                <TableCell>{group.leaderPhone}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => handleViewMembers(group.id)}
+            {groups &&
+              groups.map((group) => (
+                <TableRow key={group._id}>
+                  <TableCell>{group.name}</TableCell>
+                  <TableCell>{group.leaderName}</TableCell>
+                  <TableCell>{group.leaderPhone}</TableCell>
+                  <TableCell
+                    sx={{ display: "flex", justifyContent: "center", gap: 1 }}
                   >
-                    View Group Members
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+                    <Button size="small" variant="outlined" color="primary">
+                      <VisibilityIcon />
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="success"
+                      onClick={() => handleOpenDialog(group)}
+                    >
+                      <EditIcon />
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleDelete(group._id)}
+                    >
+                      <DeleteForeverIcon />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <AddGroup
+        open={openDialog}
+        onClose={handleCloseDialog}
+        formData={formData}
+        editingId={editingId}
+        handleInputChange={handleInputChange}
+        handleSubmit={handleSubmit}
+      />
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
