@@ -26,17 +26,14 @@ const ElectoralAreas = () => {
   });
 
   const handleAddArea = () => {
-    // Implement the logic to add a new electoral area
     console.log("Add new electoral area");
   };
 
   const handleEdit = (id) => {
-    // Implement the logic to edit an electoral area
     console.log("Edit area with id:", id);
   };
 
   const handleDelete = (id) => {
-    // Implement the logic to delete an electoral area
     console.log("Delete area with id:", id);
   };
 
@@ -61,6 +58,7 @@ const ElectoralAreas = () => {
               <TableCell>Name</TableCell>
               <TableCell>PS Code</TableCell>
               <TableCell>Phone</TableCell>
+              <TableCell>Population</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
@@ -70,19 +68,25 @@ const ElectoralAreas = () => {
                 <TableCell>{constituency.name}</TableCell>
                 <TableCell>{constituency.psCode}</TableCell>
                 <TableCell>{constituency.coordinatorPhone}</TableCell>
+                <TableCell>{constituency.population}</TableCell>
                 <TableCell>
-                  <IconButton
+                  <Button
+                    sx={{ mr: 1 }}
+                    size="small"
+                    variant="outlined"
                     onClick={() => handleEdit(constituency._id)}
                     color="primary"
                   >
                     <EditIcon />
-                  </IconButton>
-                  <IconButton
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
                     onClick={() => handleDelete(constituency._id)}
                     color="error"
                   >
                     <DeleteIcon />
-                  </IconButton>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

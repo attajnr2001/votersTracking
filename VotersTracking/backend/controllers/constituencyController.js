@@ -1,22 +1,27 @@
 import asyncHandler from "express-async-handler";
 import Constituency from "../models/Constituency.js";
 import User from "../models/User.js";
+import Voter from "../models/Voter.js"; // Add this import
 
 // @desc    Get all constituencies
 // @route   GET /api/constituencies
 // @access  Public
 const getConstituencies = asyncHandler(async (req, res) => {
   const constituencies = await Constituency.find({});
-  const constituenciesWithCoordinatorPhone = await Promise.all(
+  const constituenciesWithDetails = await Promise.all(
     constituencies.map(async (constituency) => {
       const coordinator = await User.findOne({ psCode: constituency.psCode });
+      const voterCount = await Voter.countDocuments({
+        psCode: constituency.psCode,
+      });
       return {
         ...constituency.toObject(),
-        coordinatorPhone: coordinator ? coordinator.phone : "N/A", 
+        coordinatorPhone: coordinator ? coordinator.phone : "N/A",
+        population: voterCount, // This represents the number of voters in the constituency
       };
     })
   );
-  res.json(constituenciesWithCoordinatorPhone);
+  res.json(constituenciesWithDetails);
 });
 
 // @desc    Create a new constituency

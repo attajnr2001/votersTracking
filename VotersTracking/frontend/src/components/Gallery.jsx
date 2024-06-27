@@ -11,24 +11,15 @@ import {
 import {
   Box,
   Grid,
-  Card,
-  CardMedia,
-  Tooltip,
-  Typography,
   Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Avatar,
   Snackbar,
   Alert,
+  Skeleton,
+  Typography,
 } from "@mui/material";
 import "../styles/gallery.css";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import AddGallery from "../mod/AddGallery";
 
 const Gallery = () => {
@@ -38,6 +29,7 @@ const Gallery = () => {
     isError,
     error,
   } = useGetGalleryItemsQuery();
+
   const [addGalleryItem] = useAddGalleryItemMutation();
   const [updateGalleryItem] = useUpdateGalleryItemMutation();
   const [deleteGalleryItem] = useDeleteGalleryItemMutation();
@@ -163,6 +155,29 @@ const Gallery = () => {
     setOpenSnackbar(false);
   };
 
+  const GallerySkeleton = () => (
+    <Box className="card__article" sx={{ mb: 2 }}>
+      <Skeleton variant="rectangular" width="100%" height={200} />
+      <Box sx={{ pt: 1 }}>
+        <Skeleton width="60%" />
+        <Skeleton width="40%" />
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
+          <Skeleton width="30%" />
+          <Box>
+            <Skeleton
+              width={60}
+              height={30}
+              sx={{ mr: 1, display: "inline-block" }}
+            />
+            <Skeleton width={60} height={30} sx={{ display: "inline-block" }} />
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  if (isError) return <div>Error: {error.message}</div>;
+
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
@@ -178,51 +193,55 @@ const Gallery = () => {
 
       <Grid container spacing={3} sx={{ mt: 3 }}>
         <Box className="container">
-          {galleryItems.map((item) => (
-            <article key={item._id} className="card__article">
-              <img src={item.image} alt={item.name} className="card__img" />
-              <Box className="card__data">
-                <Tooltip title={item.description} arrow placement="top">
-                  <span className="card__description">{item.description}</span>
-                </Tooltip>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box>
-                    <Typography sx={{ fontWeight: "bold", color: "#333" }}>
-                      {item.name.toUpperCase()}
+          {isLoading
+            ? Array.from(new Array(6)).map((_, index) => (
+                <GallerySkeleton key={index} />
+              ))
+            : galleryItems.map((item) => (
+                <article key={item._id} className="card__article">
+                  <img src={item.image} alt={item.name} className="card__img" />
+                  <Box className="card__data">
+                    <Typography className="card__description">
+                      {item.description}
                     </Typography>
-                    <Button variant="contained" size="small">
-                      {item.year}
-                    </Button>
-                  </Box>
-                  <Box className="actions">
-                    <Button
-                      sx={{ mr: 1 }}
-                      variant="outlined"
-                      color="primary"
-                      size="small"
-                      onClick={() => handleOpenDialog(item)}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
                     >
-                      <EditIcon />
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => handleDelete(item._id)}
-                    >
-                      <DeleteForeverIcon />
-                    </Button>
+                      <Box>
+                        <Typography sx={{ fontWeight: "bold", color: "#333" }}>
+                          {item.name.toUpperCase()}
+                        </Typography>
+                        <Button variant="contained" size="small">
+                          {item.year}
+                        </Button>
+                      </Box>
+                      <Box className="actions">
+                        <Button
+                          sx={{ mr: 1 }}
+                          variant="outlined"
+                          color="primary"
+                          size="small"
+                          onClick={() => handleOpenDialog(item)}
+                        >
+                          <EditIcon />
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => handleDelete(item._id)}
+                        >
+                          <DeleteForeverIcon />
+                        </Button>
+                      </Box>
+                    </Box>
                   </Box>
-                </Box>
-              </Box>
-            </article>
-          ))}
+                </article>
+              ))}
         </Box>
       </Grid>
 
