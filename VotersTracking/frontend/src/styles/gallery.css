@@ -9,7 +9,7 @@
 .card__article {
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 320px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -41,7 +41,6 @@
     width: 100%;
 }
 
-/* Remove this block */
 .card__description:hover::after {
     content: attr(data-full-text);
     position: absolute;

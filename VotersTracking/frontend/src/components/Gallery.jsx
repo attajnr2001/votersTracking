@@ -212,7 +212,7 @@ const Gallery = () => {
                       }}
                     >
                       <Box>
-                        <Typography sx={{ fontWeight: "bold", color: "#333" }}>
+                        <Typography sx={{ fontWeight: "bold", color: "#333", whiteSpace: "nowrap" }}>
                           {item.name.toUpperCase()}
                         </Typography>
                         <Button variant="contained" size="small">
