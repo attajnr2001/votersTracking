@@ -50,7 +50,7 @@ const Profile = ({ open, onClose, user }) => {
   return (
     <>
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle>Profile</DialogTitle>
+        <DialogTitle color={"secondary"} sx={{fontWeight: "bold"}}>PROFILE</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -90,7 +90,7 @@ const Profile = ({ open, onClose, user }) => {
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button color="secondary" onClick={onClose}>Cancel</Button>
             <Button
               type="submit"
               variant="contained"
