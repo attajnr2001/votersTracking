@@ -10,6 +10,7 @@ import voterRoutes from "./routes/voterRoutes.js";
 import constituencyRoutes from "./routes/constituencyRoutes.js";
 import galleryRoutes from "./routes/galleryRoutes.js";
 import groupRoutes from "./routes/groupRoutes.js";
+import groupMemberRoutes from "./routes/groupMemberRoutes.js";
 
 const port = process.env.PORT || 5000;
 
@@ -26,6 +27,7 @@ app.use("/api/voters", voterRoutes);
 app.use("/api/constituencies", constituencyRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/group-members", groupMemberRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
