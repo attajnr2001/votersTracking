@@ -18,6 +18,7 @@ import RootLayout from "./layouts/RootLayout";
 import PrivateRoute from "./helpers/PrivateRoute";
 import store from "./store";
 import Users from "./components/Users";
+import Groups from "./components/Groups";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -32,6 +33,7 @@ const App = () => {
             <Route path="electoral-areas" element={<ElectoralAreas />} />
             <Route path="history" element={<History />} />
             <Route path="gallery" element={<Gallery />} />
+            <Route path="groups" element={<Groups />} />
           </Route>
         </Route>
       </Route>

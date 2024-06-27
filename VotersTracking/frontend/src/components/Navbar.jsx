@@ -71,6 +71,11 @@ function Navbar(props) {
     handleMenuClose();
   };
 
+  const handleGroupsClick = () => {
+    navigate("/dashboard/groups");
+    handleMenuClose();
+  };
+
   const handleHistoryClick = () => {
     navigate("/dashboard/history");
     handleMenuClose();
@@ -162,7 +167,9 @@ function Navbar(props) {
               alt={userInfo?.name}
               src={userInfo?.avatar}
               sx={{
-                bgcolor: "transparent" ,color: "#fff", border: "3px solid #fff"
+                bgcolor: "transparent",
+                color: "#fff",
+                border: "3px solid #fff",
               }}
             >
               {!userInfo?.avatar && userFirstLetter}
@@ -175,7 +182,6 @@ function Navbar(props) {
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
-
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -230,7 +236,9 @@ function Navbar(props) {
                   alt={userInfo?.name}
                   src={userInfo?.avatar}
                   sx={{
-                    bgcolor: "transparent" ,color: "#fff", border: "3px solid #fff" 
+                    bgcolor: "transparent",
+                    color: "#fff",
+                    border: "3px solid #fff",
                   }}
                 >
                   {!userInfo?.avatar && userFirstLetter}
@@ -288,7 +296,7 @@ function Navbar(props) {
               Electoral Areas
             </MenuItem>
           )}
-          <MenuItem onClick={handleMenuClose}>Groups</MenuItem>
+          <MenuItem onClick={handleGroupsClick}>Groups</MenuItem>
         </Menu>
         <Menu
           anchorEl={profileAnchorEl}
