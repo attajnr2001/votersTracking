@@ -96,7 +96,7 @@ const Users = () => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ my: 2}}>
         <Table>
           <TableHead>
             <TableRow>
