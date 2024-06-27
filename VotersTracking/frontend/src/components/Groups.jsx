@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Table,
   TableBody,
@@ -26,6 +27,7 @@ import {
   useDeleteGroupMutation,
 } from "../slices/groupsApiSlice";
 import { useSelector } from "react-redux";
+import GroupMembers from "./GroupMembers";
 
 const Groups = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -37,6 +39,7 @@ const Groups = () => {
   const [addGroup] = useAddGroupMutation();
   const [updateGroup] = useUpdateGroupMutation();
   const [deleteGroup] = useDeleteGroupMutation();
+  const [viewingGroupId, setViewingGroupId] = useState(null);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [formData, setFormData] = useState({
@@ -132,113 +135,151 @@ const Groups = () => {
 
   return (
     <Box>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        <Typography
-          variant="h5"
-          component="h2"
-          color={"secondary"}
-          fontWeight={"bold"}
-        >
-          GROUPS
-        </Typography>
-        {isSuper && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleOpenDialog()}
+      <AnimatePresence mode="wait">
+        {viewingGroupId ? (
+          <motion.div
+            key="groupMembers"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3 }}
           >
-            Add Group
-          </Button>
-        )}
-      </Box>
-
-      <TextField
-        label="Search by name"
-        variant="outlined"
-        margin="normal"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Leader's Name</TableCell>
-              <TableCell>Leader's Phone</TableCell>
-              <TableCell sx={{ textAlign: "center" }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredGroups.map((group) => (
-              <TableRow key={group._id}>
-                <TableCell>{group.name}</TableCell>
-                <TableCell>{group.leaderName}</TableCell>
-                <TableCell>{group.leaderPhone}</TableCell>
-                <TableCell
-                  sx={{ display: "flex", justifyContent: "center", gap: 1 }}
+            <GroupMembers
+              groupId={viewingGroupId}
+              onBack={() => setViewingGroupId(null)}
+            />
+          </motion.div>
+        ) : (
+          <>
+            <motion.div
+              key="groupsList"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 50 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={2}
+              >
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  color={"secondary"}
+                  fontWeight={"bold"}
                 >
-                  <Button size="small" variant="outlined" color="primary">
-                    <VisibilityIcon />
+                  GROUPS
+                </Typography>
+                {isSuper && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleOpenDialog()}
+                  >
+                    Add Group
                   </Button>
-                  {isSuper && (
-                    <>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="success"
-                        onClick={() => handleOpenDialog(group)}
-                      >
-                        <EditIcon />
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleDelete(group._id)}
-                      >
-                        <DeleteForeverIcon />
-                      </Button>
-                    </>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                )}
+              </Box>
 
-      {isSuper && (
-        <AddGroup
-          open={openDialog}
-          onClose={handleCloseDialog}
-          formData={formData}
-          editingId={editingId}
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-        />
-      )}
+              <TextField
+                label="Search by name"
+                variant="outlined"
+                margin="normal"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
 
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Leader's Name</TableCell>
+                      <TableCell>Leader's Phone</TableCell>
+                      <TableCell sx={{ textAlign: "center" }}>
+                        Actions
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredGroups.map((group) => (
+                      <TableRow key={group._id}>
+                        <TableCell>{group.name}</TableCell>
+                        <TableCell>{group.leaderName}</TableCell>
+                        <TableCell>{group.leaderPhone}</TableCell>
+                        <TableCell
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => setViewingGroupId(group._id)}
+                          >
+                            <VisibilityIcon />
+                          </Button>
+                          {isSuper && (
+                            <>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="success"
+                                onClick={() => handleOpenDialog(group)}
+                              >
+                                <EditIcon />
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
+                                onClick={() => handleDelete(group._id)}
+                              >
+                                <DeleteForeverIcon />
+                              </Button>
+                            </>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {isSuper && (
+                <AddGroup
+                  open={openDialog}
+                  onClose={handleCloseDialog}
+                  formData={formData}
+                  editingId={editingId}
+                  handleInputChange={handleInputChange}
+                  handleSubmit={handleSubmit}
+                />
+              )}
+
+              <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+              >
+                <Alert
+                  onClose={handleSnackbarClose}
+                  severity={snackbarSeverity}
+                  sx={{ width: "100%" }}
+                >
+                  {snackbarMessage}
+                </Alert>
+              </Snackbar>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </Box>
   );
 };
