@@ -104,7 +104,7 @@ const Users = () => {
               <TableCell>Role</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Phone</TableCell>
-              <TableCell>Constituency</TableCell>
+              <TableCell>Electoral Area</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>

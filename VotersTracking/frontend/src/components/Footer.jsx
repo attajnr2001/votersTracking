@@ -1,12 +1,14 @@
 import React from "react";
-import { Box, Container, Grid, Typography, Link, IconButton } from "@mui/material";
+import { Box, Container, Grid, Typography, IconButton } from "@mui/material";
 import { Facebook, Twitter, Instagram, LinkedIn } from "@mui/icons-material";
+import { Link } from "react-router-dom";
 import { styled } from "@mui/system";
 
 const FooterContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
   padding: theme.spacing(6, 0),
+  textAlign: "center",
 }));
 
 const FooterLink = styled(Link)(({ theme }) => ({
@@ -23,32 +25,41 @@ const Footer = () => {
         <Grid container spacing={4}>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6" gutterBottom>
-              About Us
+              ABOUT US
             </Typography>
             <Typography variant="body2">
-              We are dedicated to providing efficient and transparent electoral services.
+              We are dedicated to providing efficient and transparent electoral
+              services.
             </Typography>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6" gutterBottom>
-              Quick Links
+              QUICK LINKS
             </Typography>
             <Box>
-              <FooterLink href="/" variant="body2">Home</FooterLink>
+              <FooterLink to="/" variant="body2">
+                Home
+              </FooterLink>
             </Box>
             <Box>
-              <FooterLink href="/voters" variant="body2">Voters</FooterLink>
+              <FooterLink to="/dashboard" variant="body2">
+                Voters
+              </FooterLink>
             </Box>
             <Box>
-              <FooterLink href="/constituencies" variant="body2">Constituencies</FooterLink>
+              <FooterLink to="/dashboard/electoral-areas" variant="body2">
+                Electoral Area
+              </FooterLink>
             </Box>
             <Box>
-              <FooterLink href="/contact" variant="body2">Contact Us</FooterLink>
+              <FooterLink to="/dashboard/users" variant="body2">
+                Users
+              </FooterLink>
             </Box>
           </Grid>
           <Grid item xs={12} sm={4}>
             <Typography variant="h6" gutterBottom>
-              Connect With Us
+              CONNECT WITH US
             </Typography>
             <IconButton color="inherit" aria-label="Facebook">
               <Facebook />
@@ -66,7 +77,7 @@ const Footer = () => {
         </Grid>
         <Box mt={5}>
           <Typography variant="body2" align="center">
-            © {new Date().getFullYear()} Your Company Name. All rights reserved.
+            © {new Date().getFullYear()} OBE. All rights reserved.
           </Typography>
         </Box>
       </Container>

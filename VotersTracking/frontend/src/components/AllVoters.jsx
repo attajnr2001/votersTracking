@@ -25,7 +25,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const AllVoters = () => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filter, setFilter] = useState("");
   const [constituency, setConstituency] = useState("");
   const [currentDateTime, setCurrentDateTime] = useState(null);

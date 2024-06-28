@@ -20,7 +20,7 @@ import SortIcon from "@mui/icons-material/Sort";
 import {
   useGetConstituenciesQuery,
   useAddConstituencyMutation,
-  useUpdateConstituencyMutation,
+  useUpdateConstituencyMutation, 
   useDeleteConstituencyMutation,
 } from "../slices/constituenciesApiSlice";
 import AddElectoralArea from "../mod/AddElectoralArea";
