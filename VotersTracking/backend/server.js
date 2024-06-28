@@ -14,7 +14,7 @@ import groupMemberRoutes from "./routes/groupMemberRoutes.js";
 
 const port = process.env.PORT || 5000;
 
-connectDB();
+connectDB(); 
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());
 app.use("/api/users", userRoutes);
-app.use("/api/constituencies", constituencyRoutes);
+app.use("/api/constituencies", constituencyRoutes); 
 app.use("/api/voters", voterRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/groups", groupRoutes);

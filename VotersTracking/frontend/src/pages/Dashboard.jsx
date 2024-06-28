@@ -15,11 +15,7 @@ const Dashboard = () => {
       <Box my={3}>
         <AllVoters />
       </Box>
-      {userInfo.psCode === "all" && (
-        <Box my={3}>
-          <Chart />
-        </Box>
-      )}
+
       <Box my={3}>
         {userInfo.psCode === "all" ? (
           <VotersChart />
@@ -27,6 +23,11 @@ const Dashboard = () => {
           <ConstituencyVotersChart psCode={userInfo.psCode} />
         )}
       </Box>
+      {userInfo.psCode === "all" && (
+        <Box my={3}>
+          <Chart />
+        </Box>
+      )}
     </>
   );
 };
