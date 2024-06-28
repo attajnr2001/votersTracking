@@ -31,6 +31,7 @@ const AddSingleVoter = ({ open, onClose }) => {
   const { userInfo } = useSelector((state) => state.auth);
   const [surname, setSurname] = useState("");
   const [otherNames, setOtherNames] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const [dob, setDob] = useState("");
   const [psCode, setPsCode] = useState(
     userInfo.psCode !== "all" ? userInfo.psCode : ""
@@ -94,6 +95,7 @@ const AddSingleVoter = ({ open, onClose }) => {
   };
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
       let imageUrl = "";
       if (imageFile) {
@@ -122,6 +124,7 @@ const AddSingleVoter = ({ open, onClose }) => {
       setDor("");
       setImage("");
       setImageFile(null);
+      setIsSaving(false);
 
       onClose();
 
@@ -131,6 +134,8 @@ const AddSingleVoter = ({ open, onClose }) => {
     } catch (err) {
       console.error(err);
       handleSnackbarOpen(err?.data?.message || "Error adding voter", "error");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -275,8 +280,13 @@ const AddSingleVoter = ({ open, onClose }) => {
           <Button onClick={handleCancel} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleSave} color="primary" variant="contained">
-            Save
+          <Button
+            onClick={handleSave}
+            color="primary"
+            variant="contained"
+            disabled={isSaving}
+          >
+            {isSaving ? "Saving..." : "Save"}
           </Button>
         </DialogActions>
 

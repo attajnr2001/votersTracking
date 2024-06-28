@@ -1,7 +1,8 @@
 import React from "react";
 import {
-  AreaChart,
-  Area,
+  ComposedChart,
+  Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -32,44 +33,36 @@ const VotersChart = () => {
   // Restructure the data
   const chartData = [
     {
-      category: "Male",
+      name: "Male",
       ...constituenciesData.reduce(
-        (acc, constituency) => ({
-          ...acc,
-          [constituency.name]: constituency.male,
-        }),
+        (acc, c) => ({ ...acc, [c.name]: c.male }),
         {}
       ),
+      total: constituenciesData.reduce((sum, c) => sum + c.male, 0),
     },
     {
-      category: "Female",
+      name: "Female",
       ...constituenciesData.reduce(
-        (acc, constituency) => ({
-          ...acc,
-          [constituency.name]: constituency.female,
-        }),
+        (acc, c) => ({ ...acc, [c.name]: c.female }),
         {}
       ),
+      total: constituenciesData.reduce((sum, c) => sum + c.female, 0),
     },
     {
-      category: "Above 40",
+      name: "Above 40",
       ...constituenciesData.reduce(
-        (acc, constituency) => ({
-          ...acc,
-          [constituency.name]: constituency.above40,
-        }),
+        (acc, c) => ({ ...acc, [c.name]: c.above40 }),
         {}
       ),
+      total: constituenciesData.reduce((sum, c) => sum + c.above40, 0),
     },
     {
-      category: "Below 40",
+      name: "Below 40",
       ...constituenciesData.reduce(
-        (acc, constituency) => ({
-          ...acc,
-          [constituency.name]: constituency.below40,
-        }),
+        (acc, c) => ({ ...acc, [c.name]: c.below40 }),
         {}
       ),
+      total: constituenciesData.reduce((sum, c) => sum + c.below40, 0),
     },
   ];
 
@@ -80,33 +73,37 @@ const VotersChart = () => {
   };
 
   return (
-    <Box sx={{ width: "100%", height: 400 }}>
+    <Box sx={{ width: "100%", height: 500 }}>
       <ResponsiveContainer>
-        <AreaChart
+        <ComposedChart
           data={chartData}
           margin={{
-            top: 5,
+            top: 20,
             right: 30,
             left: 20,
             bottom: 5,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="category" />
+          <XAxis dataKey="name" />
           <YAxis />
           <Tooltip />
           <Legend />
           {constituenciesData.map((constituency, index) => (
-            <Area
+            <Bar
               key={constituency.name}
-              type="monotone"
               dataKey={constituency.name}
-              stroke={generateColor(index)}
               fill={generateColor(index)}
-              fillOpacity={0.3}
+              barSize={"5"}
             />
           ))}
-        </AreaChart>
+          <Line
+            type="monotone"
+            dataKey="total"
+            stroke="#ff7300"
+            strokeWidth={2}
+          />
+        </ComposedChart>
       </ResponsiveContainer>
     </Box>
   );
