@@ -3,6 +3,7 @@ import { Box, Container, Grid, Typography, IconButton } from "@mui/material";
 import { Facebook, Twitter, Instagram, LinkedIn } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { styled } from "@mui/system";
+import { useSelector } from "react-redux";
 
 const FooterContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
@@ -19,6 +20,8 @@ const FooterLink = styled(Link)(({ theme }) => ({
 }));
 
 const Footer = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+
   return (
     <FooterContainer>
       <Container maxWidth="lg">
@@ -37,7 +40,7 @@ const Footer = () => {
               QUICK LINKS
             </Typography>
             <Box>
-              <FooterLink to="/" variant="body2">
+              <FooterLink to="/dashboard" variant="body2">
                 Home
               </FooterLink>
             </Box>
@@ -47,14 +50,26 @@ const Footer = () => {
               </FooterLink>
             </Box>
             <Box>
-              <FooterLink to="/dashboard/electoral-areas" variant="body2">
-                Electoral Area
-              </FooterLink>
+              {userInfo.psCode === "all" ? (
+                <FooterLink to="/dashboard/electoral-areas" variant="body2">
+                  Electoral Area
+                </FooterLink>
+              ) : (
+                <FooterLink to="/dashboard/groups" variant="body2">
+                  Groups
+                </FooterLink>
+              )}
             </Box>
             <Box>
-              <FooterLink to="/dashboard/users" variant="body2">
-                Users
-              </FooterLink>
+              {userInfo.psCode === "all" ? (
+                <FooterLink to="/dashboard/users" variant="body2">
+                  Users
+                </FooterLink>
+              ) : (
+                <FooterLink to="/dashboard/gallery" variant="body2">
+                  Gallery
+                </FooterLink>
+              )}
             </Box>
           </Grid>
           <Grid item xs={12} sm={4}>
