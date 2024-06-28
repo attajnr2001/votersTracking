@@ -21,6 +21,7 @@ import {
   useGetConstituenciesQuery,
 } from "../slices/votersApiSlice";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AllVoters = () => {
   const [page, setPage] = useState(0);
@@ -28,8 +29,8 @@ const AllVoters = () => {
   const [filter, setFilter] = useState("");
   const [constituency, setConstituency] = useState("");
   const [currentDateTime, setCurrentDateTime] = useState(null);
-  const [minAge, setMinAge] = useState("");
-  const [maxAge, setMaxAge] = useState("");
+  const [minAge, setMinAge] = useState(18);
+  const [maxAge, setMaxAge] = useState(150);
   const { userInfo } = useSelector((state) => state.auth);
 
   const handleMinAgeChange = (event) => {
@@ -61,7 +62,7 @@ const AllVoters = () => {
         setCurrentDateTime(new Date(response.data.datetime));
       } catch (error) {
         console.error("Error fetching current time:", error);
-        setCurrentDateTime(new Date()); 
+        setCurrentDateTime(new Date());
       }
     };
 
@@ -108,7 +109,6 @@ const AllVoters = () => {
           if (filter === "Below 40") matchesFilter = getAge(row.dob) < 40;
           if (filter === "Above 40") matchesFilter = getAge(row.dob) >= 40;
 
-          // Only apply constituency filter if psCode is "all"
           if (userInfo.psCode === "all" && constituency) {
             matchesConstituency = row.psCode === constituency;
           }
@@ -195,6 +195,7 @@ const AllVoters = () => {
             onChange={handleMinAgeChange}
             variant="outlined"
             fullWidth
+            InputProps={{ inputProps: { min: 18, max: 150 } }}
           />
           <TextField
             label="Max Age"
@@ -203,6 +204,7 @@ const AllVoters = () => {
             onChange={handleMaxAgeChange}
             variant="outlined"
             fullWidth
+            InputProps={{ inputProps: { min: 18, max: 150 } }}
           />
         </Box>
       </Box>
@@ -222,27 +224,35 @@ const AllVoters = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredRows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => (
-                <TableRow key={row._id}>
-                  <TableCell>
-                    <Avatar src={row.image} />
-                  </TableCell>
-                  <TableCell>{row.surname}</TableCell>
-                  <TableCell>{row.otherNames}</TableCell>
-                  <TableCell>{row.sex}</TableCell>
-                  <TableCell>{row.psCode}</TableCell>
-                  <TableCell>{row.idNumber}</TableCell>
-                  <TableCell>
-                    {new Date(row.dob).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>{getAge(row.dob)}</TableCell>
-                  <TableCell>
-                    {new Date(row.dor).toLocaleDateString()}
-                  </TableCell>
-                </TableRow>
-              ))}
+            <AnimatePresence mode="wait">
+              {filteredRows
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => (
+                  <motion.tr
+                    key={row._id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.1 }}
+                  >
+                    <TableCell>
+                      <Avatar src={row.image} />
+                    </TableCell>
+                    <TableCell>{row.surname}</TableCell>
+                    <TableCell>{row.otherNames}</TableCell>
+                    <TableCell>{row.sex}</TableCell>
+                    <TableCell>{row.psCode}</TableCell>
+                    <TableCell>{row.idNumber}</TableCell>
+                    <TableCell>
+                      {new Date(row.dob).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>{getAge(row.dob)}</TableCell>
+                    <TableCell>
+                      {new Date(row.dor).toLocaleDateString()}
+                    </TableCell>
+                  </motion.tr>
+                ))}
+            </AnimatePresence>
           </TableBody>
         </Table>
       </TableContainer>
