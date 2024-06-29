@@ -15,6 +15,7 @@ import {
   Box,
   Typography,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import {
   useGetVotersQuery,
@@ -22,10 +23,13 @@ import {
 } from "../slices/votersApiSlice";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const AllVoters = () => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [filter, setFilter] = useState("");
   const [constituency, setConstituency] = useState("");
   const [currentDateTime, setCurrentDateTime] = useState(null);
@@ -140,17 +144,91 @@ const AllVoters = () => {
     return <Typography color="error">Error loading data</Typography>;
   }
 
+  const handleExportExcel = () => {
+    console.log("excel printing");
+    const workBook = XLSX.utils.book_new();
+    const workSheet = XLSX.utils.json_to_sheet(
+      filteredRows.map((row) => ({
+        Surname: row.surname,
+        "Other Names": row.otherNames,
+        Sex: row.sex,
+        "PS Code": row.psCode,
+        "ID Number": row.idNumber,
+        "Date of Birth": new Date(row.dob).toLocaleDateString(),
+        Age: getAge(row.dob),
+        "Date of Registration": new Date(row.dor).toLocaleDateString(),
+      }))
+    );
+
+    XLSX.utils.book_append_sheet(workBook, workSheet, "Voters List");
+    XLSX.writeFile(workBook, "voters.xlsx");
+  };
+
+  const handleExportPDF = () => {
+    console.log("pdf printing");
+
+    const doc = new jsPDF();
+    doc.text("Voters Table", 20, 10);
+    doc.autoTable({
+      head: [
+        [
+          "Surname",
+          "Other Names",
+          "Sex",
+          "PS Code",
+          "ID Number",
+          "Date of Birth",
+          "Age",
+          "Date of Reg",
+        ],
+      ],
+      body: filteredRows.map((row) => [
+        row.surname,
+        row.otherNames,
+        row.sex,
+        row.psCode,
+        row.idNumber,
+        new Date(row.dob).toLocaleDateString(),
+        getAge(row.dob),
+        new Date(row.dor).toLocaleDateString(),
+      ]),
+    });
+    doc.save("voters.pdf");
+  };
+
   return (
     <Paper>
       <Box p={2}>
-        <Typography
-          color={"secondary"}
-          variant="h5"
-          sx={{ fontWeight: "bold" }}
-          mb={2}
-        >
-          ALL VOTERS
-        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography
+            color={"secondary"}
+            variant="h5"
+            sx={{ fontWeight: "bold" }}
+            mb={2}
+          >
+            ALL VOTERS
+          </Typography>
+
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="small"
+              onClick={handleExportExcel}
+            >
+              Excel
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="small"
+              onClick={handleExportPDF}
+            >
+              PDF
+            </Button>
+          </Box>
+        </Box>
+
         <Box display="flex" gap={2} marginBottom={2}>
           {userInfo.psCode === "all" && (
             <TextField

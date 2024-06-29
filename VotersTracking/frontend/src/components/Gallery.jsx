@@ -17,6 +17,7 @@ import {
   Skeleton,
   Typography,
   Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import "../styles/gallery.css";
 import EditIcon from "@mui/icons-material/Edit";
@@ -179,7 +180,7 @@ const Gallery = () => {
 
   if (isError) return <div>Error: {error.message}</div>;
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <CircularProgress />;
   if (isError) return <div>Error: {error.message}</div>;
 
   return (
@@ -207,8 +208,8 @@ const Gallery = () => {
                       arrow
                       placement="top-start"
                     >
-                      <Typography className="card__description">
-                        <MyLocationIcon color="error"/>
+                      <Typography className="card__description" sx={{fontSize:"0.9rem"}}>
+                        <MyLocationIcon color="error"  sx={{fontSize:"0.9rem"}}/>
                         {item.location}
                       </Typography>
                     </Tooltip>

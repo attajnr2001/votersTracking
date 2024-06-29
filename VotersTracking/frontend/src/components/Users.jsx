@@ -14,6 +14,7 @@ import {
   Snackbar,
   Alert,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import {
   useGetUsersQuery,
@@ -53,7 +54,7 @@ const Users = () => {
     setOpenSnackbar(false);
   };
 
-  if (isLoading) return <Typography>Loading...</Typography>;
+  if (isLoading) return <CircularProgress />;
   if (error) return <Typography>Error: {error.message}</Typography>;
 
   const filteredUsers = users
@@ -95,7 +96,7 @@ const Users = () => {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <TableContainer component={Paper} sx={{ my: 2}}>
+      <TableContainer component={Paper} sx={{ my: 2 }}>
         <Table>
           <TableHead>
             <TableRow>

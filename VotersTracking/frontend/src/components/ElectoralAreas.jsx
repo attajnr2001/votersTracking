@@ -13,14 +13,15 @@ import {
   IconButton,
   Snackbar,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import SortIcon from "@mui/icons-material/Sort"; 
+import SortIcon from "@mui/icons-material/Sort";
 import {
   useGetConstituenciesQuery,
   useAddConstituencyMutation,
-  useUpdateConstituencyMutation, 
+  useUpdateConstituencyMutation,
   useDeleteConstituencyMutation,
 } from "../slices/constituenciesApiSlice";
 import AddElectoralArea from "../mod/AddElectoralArea";
@@ -131,7 +132,7 @@ const ElectoralAreas = () => {
     return filtered;
   }, [constituencies, searchTerm, sortByPopulation]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <CircularProgress />;
   if (isError) return <div>Error: {error.message}</div>;
 
   return (

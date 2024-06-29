@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
+  CircularProgress,
   Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -103,7 +104,7 @@ const GroupMembers = ({ groupId, onBack }) => {
     : [];
 
   if (isLoading) {
-    return <Typography>Loading members...</Typography>;
+    return <CircularProgress />;
   }
 
   if (isError) {
