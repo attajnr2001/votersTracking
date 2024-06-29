@@ -22,6 +22,7 @@ import "../styles/gallery.css";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import AddGallery from "../mod/AddGallery";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 
 const Gallery = () => {
   const {
@@ -110,8 +111,7 @@ const Gallery = () => {
     return downloadURL;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       let imageUrl = formData.image;
       if (imageFile) {
@@ -208,7 +208,8 @@ const Gallery = () => {
                       placement="top-start"
                     >
                       <Typography className="card__description">
-                        {item.description}
+                        <MyLocationIcon color="error"/>
+                        {item.location}
                       </Typography>
                     </Tooltip>
                     <Box
