@@ -14,6 +14,7 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,6 +26,9 @@ import {
   useDeleteConstituencyMutation,
 } from "../slices/constituenciesApiSlice";
 import AddElectoralArea from "../mod/AddElectoralArea";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const ElectoralAreas = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -135,8 +139,70 @@ const ElectoralAreas = () => {
   if (isLoading) return <CircularProgress />;
   if (isError) return <div>Error: {error.message}</div>;
 
+  const handleExportExcel = () => {
+    console.log("excel printing");
+    const workBook = XLSX.utils.book_new();
+    const workSheet = XLSX.utils.json_to_sheet(
+      filteredAndSortedConstituencies.map((row) => ({
+        Name: row.name,
+        "PS Code": row.psCode,
+        Phone: row.coordinatorPhone,
+        Population: row.population,
+      }))
+    );
+
+    XLSX.utils.book_append_sheet(workBook, workSheet, "Electoral Areas List");
+    XLSX.writeFile(workBook, "electoral_areas.xlsx");
+  };
+
+  const handleExportPDF = () => {
+    console.log("pdf printing");
+
+    const doc = new jsPDF();
+    doc.text("Electoral Areas", 20, 10);
+    doc.autoTable({
+      head: [["Name", "PS Code", "Phone", "Population"]],
+      body: filteredAndSortedConstituencies.map((row) => [
+        row.name,
+        row.psCode,
+        row.coordinatorPhone,
+        row.population,
+      ]),
+    });
+    doc.save("electoral_areas.pdf");
+  };
+
   return (
     <Box sx={{ p: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography
+          color={"secondary"}
+          variant="h5"
+          sx={{ fontWeight: "bold" }}
+          mb={2}
+        >
+          ELECTORAL AREAS
+        </Typography>
+
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={handleExportExcel}
+          >
+            Excel
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={handleExportPDF}
+          >
+            PDF
+          </Button>
+        </Box>
+      </Box>
       <Box
         display="flex"
         justifyContent="space-between"
