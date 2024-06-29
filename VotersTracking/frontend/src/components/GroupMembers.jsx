@@ -22,6 +22,8 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import {
   useGetGroupMembersQuery,
   useImportGroupMembersMutation,
@@ -170,6 +172,38 @@ const GroupMembers = ({ groupId, onBack }) => {
     }
   };
 
+  const handleExportExcel = () => {
+    const workBook = XLSX.utils.book_new();
+    const workSheet = XLSX.utils.json_to_sheet(
+      filteredMembers.map((member) => ({
+        Name: member.name,
+        Number: member.number,
+        Gender: member.gender,
+        Age: member.age,
+        Occupation: member.occupation,
+      }))
+    );
+
+    XLSX.utils.book_append_sheet(workBook, workSheet, "Group Members List");
+    XLSX.writeFile(workBook, "group_members.xlsx");
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Group Members", 20, 10);
+    doc.autoTable({
+      head: [["Name", "Number", "Gender", "Age", "Occupation"]],
+      body: filteredMembers.map((member) => [
+        member.name,
+        member.number,
+        member.gender,
+        member.age,
+        member.occupation,
+      ]),
+    });
+    doc.save("group_members.pdf");
+  };
+
   return (
     <Box sx={{ padding: 2 }}>
       <Box
@@ -186,7 +220,7 @@ const GroupMembers = ({ groupId, onBack }) => {
           fontWeight="bold"
           gutterBottom
         >
-          {groupName ? `${groupName} - GROUP MEMBERS` : "GROUP MEMBERS"}
+          {groupName ? `${groupName}` : "GROUP MEMBERS"}
         </Typography>
         <IconButton color="secondary" onClick={onBack}>
           <ArrowBackIosIcon />
@@ -194,23 +228,44 @@ const GroupMembers = ({ groupId, onBack }) => {
       </Box>
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleOpenImportDialog}
-        >
-          Import Group Members
-        </Button>
-        <TextField
-          label="Search by name or occupation"
-          variant="outlined"
-          size="small"
-          value={searchTerm}
-          onChange={handleSearch}
-        />
+        <Box>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpenImportDialog}
+          >
+            Import Group Members
+          </Button>
+        </Box>
+
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <TextField
+            label="Search by name or occupation"
+            variant="outlined"
+            size="small"
+            value={searchTerm}
+            onChange={handleSearch}
+          />
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={handleExportExcel}
+          >
+            Excel
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={handleExportPDF}
+          >
+            PDF
+          </Button>
+        </Box>
       </Box>
       <TableContainer component={Paper}>
-        <Table>
+        <Table size="small" aria-label="a dense table">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>

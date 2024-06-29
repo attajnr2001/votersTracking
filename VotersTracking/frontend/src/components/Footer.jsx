@@ -10,6 +10,7 @@ const FooterContainer = styled(Box)(({ theme }) => ({
   color: theme.palette.primary.contrastText,
   padding: theme.spacing(6, 0),
   textAlign: "center",
+  margin: "3rem 0",
 }));
 
 const FooterLink = styled(Link)(({ theme }) => ({

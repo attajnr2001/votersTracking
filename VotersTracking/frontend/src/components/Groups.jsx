@@ -28,6 +28,9 @@ import {
 } from "../slices/groupsApiSlice";
 import { useSelector } from "react-redux";
 import GroupMembers from "./GroupMembers";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const Groups = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -133,6 +136,34 @@ const Groups = () => {
   if (isLoading) return <CircularProgress />;
   if (error) return <div>Error: {error.message}</div>;
 
+  const handleExportExcel = () => {
+    const workBook = XLSX.utils.book_new();
+    const workSheet = XLSX.utils.json_to_sheet(
+      filteredGroups.map((group) => ({
+        Name: group.name,
+        "Leader's Name": group.leaderName,
+        "Leader's Phone": group.leaderPhone,
+      }))
+    );
+
+    XLSX.utils.book_append_sheet(workBook, workSheet, "Groups List");
+    XLSX.writeFile(workBook, "groups.xlsx");
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Groups", 20, 10);
+    doc.autoTable({
+      head: [["Name", "Leader's Name", "Leader's Phone"]],
+      body: filteredGroups.map((group) => [
+        group.name,
+        group.leaderName,
+        group.leaderPhone,
+      ]),
+    });
+    doc.save("groups.pdf");
+  };
+
   return (
     <Box>
       <AnimatePresence mode="wait">
@@ -183,13 +214,40 @@ const Groups = () => {
                 )}
               </Box>
 
-              <TextField
-                label="Search by name"
-                variant="outlined"
-                margin="normal"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <TextField
+                  label="Search by name"
+                  variant="outlined"
+                  margin="normal"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="small"
+                    onClick={handleExportExcel}
+                  >
+                    Excel
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    size="small"
+                    onClick={handleExportPDF}
+                  >
+                    PDF
+                  </Button>
+                </Box>
+              </Box>
 
               <TableContainer component={Paper}>
                 <Table>
