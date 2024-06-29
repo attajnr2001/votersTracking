@@ -22,6 +22,9 @@ import {
 } from "../slices/usersApiSlice";
 import AddUserDialog from "../mod/AddUserDialog";
 import { useSelector } from "react-redux";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const Users = () => {
   const [openAddUser, setOpenAddUser] = useState(false);
@@ -65,13 +68,58 @@ const Users = () => {
       )
     : [];
 
+  const handleExportExcel = () => {
+    const workBook = XLSX.utils.book_new();
+    const workSheet = XLSX.utils.json_to_sheet(
+      filteredUsers.map((user) => ({
+        Name: user.name,
+        Email: user.email,
+        Role: user.role,
+        Status: user.status,
+        Phone: user.phone,
+        "Electoral Area": user.constituencyName,
+        "Created At": new Date(user.createdAt).toLocaleDateString(),
+      }))
+    );
+
+    XLSX.utils.book_append_sheet(workBook, workSheet, "Users List");
+    XLSX.writeFile(workBook, "users.xlsx");
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Users", 20, 10);
+    doc.autoTable({
+      head: [
+        [
+          "Name",
+          "Email",
+          "Role",
+          "Status",
+          "Phone",
+          "Electoral Area",
+          "Created At",
+        ],
+      ],
+      body: filteredUsers.map((user) => [
+        user.name,
+        user.email,
+        user.role,
+        user.status,
+        user.phone,
+        user.constituencyName,
+        new Date(user.createdAt).toLocaleDateString(),
+      ]),
+    });
+    doc.save("users.pdf");
+  };
+
   return (
     <Box>
       <Box
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        mb={2}
       >
         <Typography
           color={"secondary"}
@@ -80,6 +128,7 @@ const Users = () => {
         >
           USERS
         </Typography>
+
         <Button
           variant="contained"
           color="primary"
@@ -88,14 +137,39 @@ const Users = () => {
           Add User
         </Button>
       </Box>
-      <TextField
-        label="Search by name or constituency"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
+        <TextField
+          label="Search by name or constituency"
+          variant="outlined"
+          margin="normal"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={handleExportExcel}
+          >
+            Excel
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={handleExportPDF}
+          >
+            PDF
+          </Button>
+        </Box>
+      </Box>
+
       <TableContainer component={Paper} sx={{ my: 2 }}>
         <Table>
           <TableHead>
