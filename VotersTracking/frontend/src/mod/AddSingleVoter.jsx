@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../helpers/firebaseConfig";
 import { v4 as uuidv4 } from "uuid";
@@ -42,7 +42,8 @@ const AddSingleVoter = ({ open, onClose }) => {
   const [image, setImage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  const navigate = useNavigate();
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [isImageSizeValid, setIsImageSizeValid] = useState(true);
 
   const dispatch = useDispatch();
   const [addVoter, { isLoading }] = useAddVoterMutation();
@@ -59,6 +60,22 @@ const AddSingleVoter = ({ open, onClose }) => {
     }
   };
 
+  const checkFormValidity = () => {
+    return (
+      surname.trim() !== "" &&
+      otherNames.trim() !== "" &&
+      dob !== "" &&
+      psCode !== "" &&
+      sex !== "" &&
+      idNumber.trim() !== "" &&
+      dor !== ""
+    );
+  };
+
+  useEffect(() => {
+    setIsFormValid(checkFormValidity());
+  }, [surname, otherNames, dob, psCode, sex, idNumber, dor]);
+
   // Snackbar state
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -71,12 +88,19 @@ const AddSingleVoter = ({ open, onClose }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result); // This is for preview only
-      };
-      reader.readAsDataURL(file);
+      if (file.size > 1.5 * 1024 * 1024) {
+        // 1.5MB in bytes
+        setIsImageSizeValid(false);
+        handleSnackbarOpen("Image size should not exceed 1.5MB", "warning");
+      } else {
+        setIsImageSizeValid(true);
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -128,8 +152,6 @@ const AddSingleVoter = ({ open, onClose }) => {
 
       onClose();
 
-      // Refresh the page
-      navigate(0);
       handleSnackbarOpen("Voter added successfully", "success");
     } catch (err) {
       console.error(err);
@@ -284,7 +306,7 @@ const AddSingleVoter = ({ open, onClose }) => {
             onClick={handleSave}
             color="primary"
             variant="contained"
-            disabled={isSaving}
+            disabled={isSaving || !isFormValid || !isImageSizeValid}
           >
             {isSaving ? "Saving..." : "Save"}
           </Button>
@@ -296,6 +318,8 @@ const AddSingleVoter = ({ open, onClose }) => {
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+
       >
         <Alert
           onClose={handleSnackbarClose}

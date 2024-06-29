@@ -13,7 +13,7 @@ import { Provider } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard"; 
 import RootLayout from "./layouts/RootLayout";
 import PrivateRoute from "./helpers/PrivateRoute";
 import store from "./store";
