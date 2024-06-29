@@ -11,7 +11,6 @@ const excelToJson = (file) => {
   return XLSX.utils.sheet_to_json(sheet);
 };
 
-// Function to validate and format member data
 const validateMemberData = (member) => {
   const { name, number, gender, age, occupation } = member;
 
@@ -27,6 +26,31 @@ const validateMemberData = (member) => {
     occupation: occupation.trim(),
   };
 };
+
+// Function to import members from extracted text
+const importMembersFromText = asyncHandler(async (req, res) => {
+  const { members, groupId } = req.body;
+
+  if (!members || !groupId) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const validatedMembers = members.map((member) => ({
+      ...validateMemberData(member),
+      group: groupId,
+    }));
+
+    const createdMembers = await GroupMember.insertMany(validatedMembers);
+
+    res.status(201).json({
+      message: "Members imported successfully",
+      count: createdMembers.length,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 
 // Function to import members from Excel file
 const importMembersFromExcel = asyncHandler(async (req, res) => {
@@ -111,7 +135,7 @@ const deleteGroupMember = async (req, res) => {
 };
 
 export {
-  importMembersFromExcel,
+  importMembersFromText,
   getGroupMembers,
   createGroupMember,
   updateGroupMember,

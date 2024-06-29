@@ -1,7 +1,6 @@
-import React from "react";
-import Widget from "../components/Widget";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import AllVoters from "../components/AllVoters";
 import Chart from "../components/CompareChart";
 import VotersChart from "../components/VotersChart";
@@ -9,6 +8,11 @@ import ConstituencyVotersChart from "../components/ConstituencyVotersChart";
 
 const Dashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
+  const [showChart, setShowChart] = useState(false);
+
+  const toggleChart = () => {
+    setShowChart((prevShowChart) => !prevShowChart);
+  };
 
   return (
     <>
@@ -23,10 +27,18 @@ const Dashboard = () => {
           <ConstituencyVotersChart psCode={userInfo.psCode} />
         )}
       </Box>
+
       {userInfo.psCode === "all" && (
-        <Box my={3}>
-          <Chart />
-        </Box>
+        <>
+          <Button onClick={toggleChart}>
+            {showChart ? "Hide Chart" : "Compare Electoral Areas"}
+          </Button>
+          {showChart && (
+            <Box my={3}>
+              <Chart />
+            </Box>
+          )}
+        </>
       )}
     </>
   );

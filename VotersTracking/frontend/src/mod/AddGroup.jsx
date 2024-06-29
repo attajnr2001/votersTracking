@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Button,
-  TextField,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
+import { useGetConstituenciesQuery } from "../slices/constituenciesApiSlice";
 
 const AddGroup = ({
   open,
@@ -16,11 +21,20 @@ const AddGroup = ({
   handleInputChange,
   handleSubmit,
 }) => {
+  const { data: constituencies, isLoading } = useGetConstituenciesQuery();
+  const [constituencyOptions, setConstituencyOptions] = useState([]);
+
+  useEffect(() => {
+    if (constituencies) {
+      setConstituencyOptions(
+        constituencies.map((c) => ({ value: c.psCode, label: c.name }))
+      );
+    }
+  }, [constituencies]);
+
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle color={"secondary"}>
-        {editingId ? "EDIT GROUP" : "ADD GROUP"}
-      </DialogTitle>
+      <DialogTitle>{editingId ? "Edit Group" : "Add Group"}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
@@ -45,19 +59,30 @@ const AddGroup = ({
           margin="dense"
           name="leaderPhone"
           label="Leader's Phone"
-          type="tel"
+          type="text"
           fullWidth
           value={formData.leaderPhone}
           onChange={handleInputChange}
         />
+        <FormControl fullWidth margin="dense">
+          <InputLabel>Electoral Area</InputLabel>
+          <Select
+            name="electoralArea"
+            value={formData.electoralArea}
+            onChange={handleInputChange}
+            label="constituency"
+          >
+            {constituencyOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button color="secondary" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          Save
-        </Button>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSubmit}>{editingId ? "Update" : "Add"}</Button>
       </DialogActions>
     </Dialog>
   );

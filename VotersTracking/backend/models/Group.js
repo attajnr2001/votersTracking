@@ -1,4 +1,3 @@
-// models/Group.js
 import mongoose from "mongoose";
 
 const groupSchema = mongoose.Schema(
@@ -15,6 +14,10 @@ const groupSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    electoralArea: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -22,5 +25,4 @@ const groupSchema = mongoose.Schema(
 );
 
 const Group = mongoose.model("Group", groupSchema);
-
 export default Group;

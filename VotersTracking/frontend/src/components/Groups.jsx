@@ -49,6 +49,7 @@ const Groups = () => {
     name: "",
     leaderName: "",
     leaderPhone: "",
+    electoralArea: "",
   });
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,13 +68,19 @@ const Groups = () => {
 
   const handleOpenDialog = (group = null) => {
     if (group) {
-      setFormData(group);
+      setFormData({
+        name: group.name,
+        leaderName: group.leaderName,
+        leaderPhone: group.leaderPhone,
+        electoralArea: group.electoralArea,
+      });
       setEditingId(group._id);
     } else {
       setFormData({
         name: "",
         leaderName: "",
         leaderPhone: "",
+        electoralArea: "",
       });
       setEditingId(null);
     }
@@ -256,6 +263,7 @@ const Groups = () => {
                       <TableCell>Name</TableCell>
                       <TableCell>Leader's Name</TableCell>
                       <TableCell>Leader's Phone</TableCell>
+                      <TableCell>Electoral Area</TableCell>
                       <TableCell sx={{ textAlign: "center" }}>
                         Actions
                       </TableCell>
@@ -267,6 +275,7 @@ const Groups = () => {
                         <TableCell>{group.name}</TableCell>
                         <TableCell>{group.leaderName}</TableCell>
                         <TableCell>{group.leaderPhone}</TableCell>
+                        <TableCell>{group.constituencyName}</TableCell>
                         <TableCell
                           sx={{
                             display: "flex",

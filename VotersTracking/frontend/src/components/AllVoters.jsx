@@ -34,15 +34,29 @@ const AllVoters = () => {
   const [constituency, setConstituency] = useState("");
   const [currentDateTime, setCurrentDateTime] = useState(null);
   const [minAge, setMinAge] = useState(18);
-  const [maxAge, setMaxAge] = useState(150);
+  const [maxAge, setMaxAge] = useState(100);
   const { userInfo } = useSelector((state) => state.auth);
 
   const handleMinAgeChange = (event) => {
-    setMinAge(event.target.value);
+    const newMinAge = Math.max(
+      18,
+      Math.min(150, parseInt(event.target.value, 10) || 18)
+    );
+    setMinAge(newMinAge);
+    if (newMinAge > maxAge) {
+      setMaxAge(newMinAge);
+    }
   };
 
   const handleMaxAgeChange = (event) => {
-    setMaxAge(event.target.value);
+    const newMaxAge = Math.max(
+      18,
+      Math.min(150, parseInt(event.target.value, 10) || 150)
+    );
+    setMaxAge(newMaxAge);
+    if (newMaxAge < minAge) {
+      setMinAge(newMaxAge);
+    }
   };
 
   const {
@@ -288,17 +302,19 @@ const AllVoters = () => {
       </Box>
       <TableContainer>
         <Table>
-          <TableHead>
+          <TableHead sx={{ backgroundColor: "primary.main" }}>
             <TableRow>
-              <TableCell>Avatar</TableCell>
-              <TableCell>Surname</TableCell>
-              <TableCell>Other Names</TableCell>
-              <TableCell>Sex</TableCell>
-              <TableCell>PS Code</TableCell>
-              <TableCell>Id Number</TableCell>
-              <TableCell>Date of Birth</TableCell>
-              <TableCell>Age</TableCell>
-              <TableCell>Date of Registration</TableCell>
+              <TableCell sx={{ color: "white" }}>Avatar</TableCell>
+              <TableCell sx={{ color: "white" }}>Surname</TableCell>
+              <TableCell sx={{ color: "white" }}>Other Names</TableCell>
+              <TableCell sx={{ color: "white" }}>Sex</TableCell>
+              <TableCell sx={{ color: "white" }}>PS Code</TableCell>
+              <TableCell sx={{ color: "white" }}>Id Number</TableCell>
+              <TableCell sx={{ color: "white" }}>Date of Birth</TableCell>
+              <TableCell sx={{ color: "white" }}>Age</TableCell>
+              <TableCell sx={{ color: "white" }}>
+                Date of Registration
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

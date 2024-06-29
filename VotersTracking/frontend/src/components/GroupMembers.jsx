@@ -12,13 +12,9 @@ import {
   Paper,
   IconButton,
   Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Snackbar,
   CircularProgress,
   Alert,
+  Snackbar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -31,7 +27,7 @@ import {
 } from "../slices/groupMembersApiSlice";
 import * as XLSX from "xlsx";
 import EditMemberDialog from "../mod/EditMemberDialog";
-import { useGetGroupByIdQuery } from "../slices/groupsApiSlice";
+import ImportMembersDialog from "../mod/ImportMembersDialog";
 
 const GroupMembers = ({ groupId, onBack }) => {
   // Sample members array
@@ -119,9 +115,7 @@ const GroupMembers = ({ groupId, onBack }) => {
 
   const handleCloseImportDialog = () => {
     setOpenImportDialog(false);
-    setSelectedFile(null);
   };
-
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
@@ -131,44 +125,21 @@ const GroupMembers = ({ groupId, onBack }) => {
     setIsValidFile(isExcel);
   };
 
-  const handleImport = async () => {
-    if (selectedFile) {
-      // Read the file contents
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-
-        // Assume the first sheet is the one we want
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-
-        // Convert to JSON
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        console.log(
-          "Extracted data from Excel:",
-          JSON.stringify(jsonData, null, 2)
-        );
-
-        try {
-          const result = await importGroupMembers({
-            members: jsonData,
-            groupId,
-          }).unwrap();
-          console.log("Import successful:", result);
-          handleCloseImportDialog();
-        } catch (error) {
-          console.error("Import failed:", error);
-          // Handle the error (e.g., show an error message to the user)
-        }
-      };
-
-      reader.readAsArrayBuffer(selectedFile);
-    }
-
-    if (result) {
+  const handleImport = async (jsonData) => {
+    try {
+      const result = await importGroupMembers({
+        members: jsonData,
+        groupId,
+      }).unwrap();
+      console.log("Import successful:", result);
+      handleCloseImportDialog();
       refetch();
+      setSnackbarMessage("Members imported successfully");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Import failed:", error);
+      setSnackbarMessage("Failed to import members");
+      setSnackbarOpen(true);
     }
   };
 
@@ -301,46 +272,13 @@ const GroupMembers = ({ groupId, onBack }) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Dialog open={openImportDialog} onClose={handleCloseImportDialog}>
-        <DialogTitle>Import Group Members</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" gutterBottom>
-            Select a Excel file to import group members:
-          </Typography>
-          <input
-            accept=".xlsx,.xls"
-            style={{ display: "none" }}
-            id="raised-button-file"
-            type="file"
-            onChange={handleFileChange}
-          />
-          <label htmlFor="raised-button-file">
-            <Button variant="contained" component="span">
-              Choose File
-            </Button>
-          </label>
-          {selectedFile && (
-            <Typography variant="body2" mt={1}>
-              Selected file: {selectedFile.name}
-            </Typography>
-          )}
-          {selectedFile && !isValidFile && (
-            <Typography variant="body2" color="error" mt={1}>
-              Please select a valid Excel file (.xlsx or .xls)
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseImportDialog}>Cancel</Button>
-          <Button
-            onClick={handleImport}
-            disabled={!selectedFile || !isValidFile || isImporting}
-            color="primary"
-          >
-            {isImporting ? "Importing..." : "Import"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+
+      <ImportMembersDialog
+        open={openImportDialog}
+        onClose={handleCloseImportDialog}
+        onImport={handleImport}
+        isImporting={isImporting}
+      />
 
       <EditMemberDialog
         open={editDialogOpen}

@@ -1,4 +1,3 @@
-// models/GroupMember.js
 import mongoose from "mongoose";
 
 const groupMemberSchema = mongoose.Schema(
@@ -28,6 +27,7 @@ const groupMemberSchema = mongoose.Schema(
       ref: "Group",
       required: true,
     },
+    
   },
   {
     timestamps: true,
