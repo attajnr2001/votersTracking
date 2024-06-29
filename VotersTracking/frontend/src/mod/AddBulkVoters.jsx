@@ -10,6 +10,8 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 
 const AddBulkVoters = ({ open, onClose }) => {
@@ -17,6 +19,12 @@ const AddBulkVoters = ({ open, onClose }) => {
   const [extractedText, setExtractedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -79,57 +87,92 @@ const AddBulkVoters = ({ open, onClose }) => {
           console.log(`Profile ${i + 1} uploaded. URL:`, downloadURL);
 
           // You can store these URLs in state or process them further as needed
+
+          setSnackbar({
+            open: true,
+            message: "Image processed and profiles uploaded successfully!",
+            severity: "success",
+          });
         }
       } catch (error) {
         console.error("Error processing image:", error);
+        // Show error message
+        setSnackbar({
+          open: true,
+          message: "Error processing image: " + error.message,
+          severity: "error",
+        });
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Upload Image File (JPEG or PNG)</DialogTitle>
-      <DialogContent>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/jpeg, image/png"
-          onChange={handleFileChange}
-          style={{ marginBottom: "10px" }}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="secondary">
-          Cancel
-        </Button>
-        <Button
-          onClick={handleUpload}
-          color="primary"
-          variant="contained"
-          disabled={!selectedFile || isLoading}
-        >
-          {isLoading ? "Processing..." : "Upload & Extract"}
-        </Button>
-      </DialogActions>
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbar({ ...snackbar, open: false });
+  };
 
-      {extractedText && (
+  return (
+    <>
+      <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+        <DialogTitle>Upload Image File (JPEG or PNG)</DialogTitle>
         <DialogContent>
-          <TextField
-            label="Extracted Text"
-            multiline
-            rows={6}
-            variant="outlined"
-            fullWidth
-            value={extractedText}
-            InputProps={{
-              readOnly: true,
-            }}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg, image/png"
+            onChange={handleFileChange}
+            style={{ marginBottom: "10px" }}
           />
         </DialogContent>
-      )}
-    </Dialog>
+        <DialogActions>
+          <Button onClick={onClose} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUpload}
+            color="primary"
+            variant="contained"
+            disabled={!selectedFile || isLoading}
+          >
+            {isLoading ? "Processing..." : "Upload & Extract"}
+          </Button>
+        </DialogActions>
+
+        {extractedText && (
+          <DialogContent>
+            <TextField
+              label="Extracted Text"
+              multiline
+              rows={6}
+              variant="outlined"
+              fullWidth
+              value={extractedText}
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          </DialogContent>
+        )}
+      </Dialog>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 
