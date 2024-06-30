@@ -9,6 +9,8 @@ import {
   Box,
   Avatar,
   Snackbar,
+  MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
@@ -26,6 +28,8 @@ const AddGallery = ({
   handleFileChange,
   handleSubmit,
   imagePreview,
+  constituencies,
+  isLoadingConstituencies,
 }) => {
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -74,7 +78,6 @@ const AddGallery = ({
             label="Name"
             type="text"
             fullWidth
-            variant="standard"
             value={formData.name}
             onChange={handleInputChange}
           />
@@ -84,27 +87,39 @@ const AddGallery = ({
             label="Year"
             type="number"
             fullWidth
-            variant="standard"
             value={formData.year}
             onChange={handleInputChange}
           />
           <TextField
+            select
             margin="dense"
             name="location"
             label="Location"
-            type="text"
             fullWidth
-            variant="standard"
             value={formData.location}
             onChange={handleInputChange}
-          />
+            disabled={isLoadingConstituencies}
+          >
+            {isLoadingConstituencies ? (
+              <MenuItem disabled>
+                <CircularProgress size={20} /> Loading constituencies...
+              </MenuItem>
+            ) : constituencies?.length > 0 ? (
+              constituencies.map((constituency) => (
+                <MenuItem key={constituency._id} value={constituency.name}>
+                  {constituency.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No constituencies available</MenuItem>
+            )}
+          </TextField>
           <TextField
             margin="dense"
             name="description"
             label="Description"
             type="text"
             fullWidth
-            variant="standard"
             value={formData.description}
             onChange={handleInputChange}
           />

@@ -8,6 +8,7 @@ import {
   useUpdateGalleryItemMutation,
   useDeleteGalleryItemMutation,
 } from "../slices/galleryApiSlice";
+import { useGetConstituenciesQuery } from "../slices/constituenciesApiSlice";
 import {
   Box,
   Grid,
@@ -24,6 +25,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import AddGallery from "../mod/AddGallery";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
+``;
 
 const Gallery = () => {
   const {
@@ -32,6 +34,13 @@ const Gallery = () => {
     isError,
     error,
   } = useGetGalleryItemsQuery();
+
+  const {
+    data: constituencies,
+    isLoading: isLoadingConstituencies,
+    isError: isErrorConstituencies,
+    error: errorConstituencies,
+  } = useGetConstituenciesQuery();
 
   const [addGalleryItem] = useAddGalleryItemMutation();
   const [updateGalleryItem] = useUpdateGalleryItemMutation();
@@ -178,10 +187,10 @@ const Gallery = () => {
     </Box>
   );
 
-  if (isError) return <div>Error: {error.message}</div>;
+  if (isError || isErrorConstituencies)
+    return <div>Error: {error?.message || errorConstituencies?.message}</div>;
 
-  if (isLoading) return <CircularProgress />;
-  if (isError) return <div>Error: {error.message}</div>;
+  if (isLoading || isLoadingConstituencies) return <CircularProgress />;
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
@@ -208,8 +217,14 @@ const Gallery = () => {
                       arrow
                       placement="top-start"
                     >
-                      <Typography className="card__description" sx={{fontSize:"0.9rem"}}>
-                        <MyLocationIcon color="error"  sx={{fontSize:"0.9rem"}}/>
+                      <Typography
+                        className="card__description"
+                        sx={{ fontSize: "0.9rem" }}
+                      >
+                        <MyLocationIcon
+                          color="error"
+                          sx={{ fontSize: "0.9rem" }}
+                        />
                         {item.location}
                       </Typography>
                     </Tooltip>
@@ -269,6 +284,8 @@ const Gallery = () => {
         handleFileChange={handleFileChange}
         handleSubmit={handleSubmit}
         imagePreview={imagePreview}
+        constituencies={constituencies}
+        isLoadingConstituencies={isLoadingConstituencies}
       />
 
       <Snackbar

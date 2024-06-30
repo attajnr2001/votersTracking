@@ -7,6 +7,7 @@ import {
   DialogActions,
   Typography,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import { createWorker } from "tesseract.js";
 
@@ -14,6 +15,7 @@ const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isValidFile, setIsValidFile] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [extractedText, setExtractedText] = useState("");
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -24,7 +26,7 @@ const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
     setIsValidFile(isImage);
   };
 
-  const handleImport = async () => {
+  const handleExtractText = async () => {
     if (selectedFile) {
       setIsProcessing(true);
       const worker = await createWorker("eng");
@@ -33,19 +35,10 @@ const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
         const {
           data: { text },
         } = await worker.recognize(selectedFile);
-
-        // Process the extracted text
-        const lines = text.split("\n").filter((line) => line.trim() !== "");
-        const members = lines.map((line) => {
-          const [name, number, gender, age, occupation] = line
-            .split(",")
-            .map((item) => item.trim());
-          return { name, number, gender, age, occupation };
-        });
-
-        onImport(members);
+        setExtractedText(text);
       } catch (error) {
         console.error("Error processing image:", error);
+        setExtractedText("Error extracting text from the image.");
       } finally {
         await worker.terminate();
         setIsProcessing(false);
@@ -54,7 +47,7 @@ const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Import Group Members</DialogTitle>
       <DialogContent>
         <Typography variant="body1" gutterBottom>
@@ -81,25 +74,33 @@ const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
           <Typography variant="body2" color="error" mt={1}>
             Please select a valid image file
           </Typography>
+        )} <br />
+        <Button
+          onClick={handleExtractText}
+          disabled={!selectedFile || !isValidFile || isProcessing}
+          color="primary"
+          variant="contained"
+          sx={{ mt: 2 }}
+        >
+          {isProcessing ? <CircularProgress size={24} /> : "Extract Text"}
+        </Button>
+        {extractedText && (
+          <TextField
+            label="Extracted Text"
+            multiline
+            rows={10}
+            value={extractedText}
+            fullWidth
+            variant="outlined"
+            sx={{ mt: 2 }}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={handleImport}
-          disabled={
-            !selectedFile || !isValidFile || isImporting || isProcessing
-          }
-          color="primary"
-        >
-          {isProcessing ? (
-            <CircularProgress size={24} />
-          ) : isImporting ? (
-            "Importing..."
-          ) : (
-            "Import"
-          )}
-        </Button>
+        <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
   );

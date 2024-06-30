@@ -119,28 +119,16 @@ const GroupMembers = ({ groupId, onBack }) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-
-    // Check if the file is an Excel file
-    const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls");
-    setIsValidFile(isExcel);
   };
 
-  const handleImport = async (jsonData) => {
-    try {
-      const result = await importGroupMembers({
-        members: jsonData,
-        groupId,
-      }).unwrap();
-      console.log("Import successful:", result);
-      handleCloseImportDialog();
-      refetch();
-      setSnackbarMessage("Members imported successfully");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Import failed:", error);
-      setSnackbarMessage("Failed to import members");
-      setSnackbarOpen(true);
-    }
+  // In the GroupMembers component
+
+  const handleImport = async (extractedText) => {
+    // For now, we're just logging the extracted text
+    console.log("Extracted text:", extractedText);
+    handleCloseImportDialog();
+    setSnackbarMessage("Text extracted successfully");
+    setSnackbarOpen(true);
   };
 
   const handleExportExcel = () => {
@@ -236,7 +224,7 @@ const GroupMembers = ({ groupId, onBack }) => {
         </Box>
       </Box>
       <TableContainer component={Paper}>
-        <Table size="small" aria-label="a dense table">
+        <Table  aria-label="a dense table">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>

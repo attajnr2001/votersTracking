@@ -30,7 +30,7 @@ const Dashboard = () => {
 
       {userInfo.psCode === "all" && (
         <>
-          <Button onClick={toggleChart}>
+          <Button onClick={toggleChart} variant="contained">
             {showChart ? "Hide Chart" : "Compare Electoral Areas"}
           </Button>
           {showChart && (
