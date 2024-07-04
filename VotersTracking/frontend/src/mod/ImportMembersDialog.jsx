@@ -11,30 +11,50 @@ import {
 } from "@mui/material";
 import { createWorker } from "tesseract.js";
 
-const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [isValidFile, setIsValidFile] = useState(false);
+const ImportMembersDialog = ({
+  open,
+  onClose,
+  onImport,
+  isImporting,
+  groupId,
+}) => {
+  const [selectedImage, setSelectedImage] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedText, setExtractedText] = useState("");
 
-  const handleFileChange = (event) => {
+  const handleImageChange = (event) => {
     const file = event.target.files[0];
-    setSelectedFile(file);
+    if (file && file.type.startsWith("image/")) {
+      setSelectedImage(file);
+    } else {
+      setSelectedImage(null);
+      alert("Please select a valid image file.");
+    }
+  };
 
-    // Check if the file is an image
-    const isImage = file.type.startsWith("image/");
-    setIsValidFile(isImage);
+  const handleImport = async () => {
+    if (extractedText) {
+      const members = parseExtractedText(extractedText);
+      try {
+        await onImport({ members, groupId });
+        onClose();
+        // Success message will be handled in the parent component
+      } catch (error) {
+        console.error("Error importing members:", error);
+        // Error message will be handled in the parent component
+      }
+    }
   };
 
   const handleExtractText = async () => {
-    if (selectedFile) {
+    if (selectedImage) {
       setIsProcessing(true);
       const worker = await createWorker("eng");
 
       try {
         const {
           data: { text },
-        } = await worker.recognize(selectedFile);
+        } = await worker.recognize(selectedImage);
         setExtractedText(text);
       } catch (error) {
         console.error("Error processing image:", error);
@@ -44,6 +64,29 @@ const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
         setIsProcessing(false);
       }
     }
+  };
+
+  const parseExtractedText = (text) => {
+    const lines = text.split("\n");
+    return lines
+      .map((line) => {
+        const parts = line.split(/(?<=\D)\s+(?=\d)/);
+        if (parts.length >= 2) {
+          const name = parts[0].trim();
+          const number = parts[1].trim();
+          return {
+            name,
+            number,
+            gender: "", // Add default values
+            age: "",
+            occupation: "",
+          };
+        } else {
+          console.warn(`Skipping invalid line: ${line}`);
+          return null;
+        }
+      })
+      .filter((member) => member !== null);
   };
 
   return (
@@ -58,26 +101,22 @@ const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
           style={{ display: "none" }}
           id="raised-button-file"
           type="file"
-          onChange={handleFileChange}
+          onChange={handleImageChange}
         />
         <label htmlFor="raised-button-file">
           <Button variant="contained" component="span">
-            Choose File
+            Choose Image
           </Button>
         </label>
-        {selectedFile && (
+        {selectedImage && (
           <Typography variant="body2" mt={1}>
-            Selected file: {selectedFile.name}
+            Selected image: {selectedImage.name}
           </Typography>
         )}
-        {selectedFile && !isValidFile && (
-          <Typography variant="body2" color="error" mt={1}>
-            Please select a valid image file
-          </Typography>
-        )} <br />
+        <br />
         <Button
           onClick={handleExtractText}
-          disabled={!selectedFile || !isValidFile || isProcessing}
+          disabled={!selectedImage || isProcessing}
           color="primary"
           variant="contained"
           sx={{ mt: 2 }}
@@ -100,6 +139,14 @@ const ImportMembersDialog = ({ open, onClose, onImport, isImporting }) => {
         )}
       </DialogContent>
       <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          onClick={handleImport}
+          color="primary"
+          disabled={!extractedText || isImporting}
+        >
+          {isImporting ? <CircularProgress size={24} /> : "Import"}
+        </Button>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>

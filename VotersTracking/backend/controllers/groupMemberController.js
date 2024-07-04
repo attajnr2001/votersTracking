@@ -14,16 +14,16 @@ const excelToJson = (file) => {
 const validateMemberData = (member) => {
   const { name, number, gender, age, occupation } = member;
 
-  if (!name || !number || !gender || !age || !occupation) {
+  if (!name || !number) {
     throw new Error("Missing required fields");
   }
 
   return {
     name: name.trim(),
     number: number.toString(),
-    gender: gender.trim(),
-    age: parseInt(age),
-    occupation: occupation.trim(),
+    gender: gender ? gender.trim() : '',
+    age: age ? parseInt(age) : null,
+    occupation: occupation ? occupation.trim() : '',
   };
 };
 
@@ -52,30 +52,6 @@ const importMembersFromText = asyncHandler(async (req, res) => {
   }
 });
 
-// Function to import members from Excel file
-const importMembersFromExcel = asyncHandler(async (req, res) => {
-  const { members, groupId } = req.body;
-
-  if (!members || !groupId) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
-
-  try {
-    const validatedMembers = members.map((member) => ({
-      ...validateMemberData(member),
-      group: groupId,
-    }));
-
-    const createdMembers = await GroupMember.insertMany(validatedMembers);
-
-    res.status(201).json({
-      message: "Members imported successfully",
-      count: createdMembers.length,
-    });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
 
 // Function to get all group members
 const getGroupMembers = async (req, res) => {

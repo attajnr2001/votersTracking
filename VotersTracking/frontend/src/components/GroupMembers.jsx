@@ -15,6 +15,7 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
+  TablePagination,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -53,6 +54,17 @@ const GroupMembers = ({ groupId, onBack }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const handleOpenEditDialog = (member) => {
     if (member) {
@@ -123,12 +135,21 @@ const GroupMembers = ({ groupId, onBack }) => {
 
   // In the GroupMembers component
 
-  const handleImport = async (extractedText) => {
-    // For now, we're just logging the extracted text
-    console.log("Extracted text:", extractedText);
-    handleCloseImportDialog();
-    setSnackbarMessage("Text extracted successfully");
-    setSnackbarOpen(true);
+  const handleImport = async (data) => {
+    try {
+      const result = await importGroupMembers({
+        members: data.members,
+        groupId: data.groupId,
+      }).unwrap();
+      refetch();
+      setSnackbarMessage(`${result.count} members imported successfully`);
+      setSnackbarOpen(true);
+      handleCloseImportDialog(); // Close the dialog after successful import
+    } catch (error) {
+      console.error("Failed to import members:", error);
+      setSnackbarMessage("Failed to import members");
+      setSnackbarOpen(true);
+    }
   };
 
   const handleExportExcel = () => {
@@ -224,7 +245,7 @@ const GroupMembers = ({ groupId, onBack }) => {
         </Box>
       </Box>
       <TableContainer component={Paper}>
-        <Table  aria-label="a dense table">
+        <Table aria-label="a dense table" size="small">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -236,14 +257,15 @@ const GroupMembers = ({ groupId, onBack }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredMembers.map((member) => (
-              <TableRow key={member._id}>
-                <TableCell>{member.name}</TableCell>
-                <TableCell>{member.number}</TableCell>
-                <TableCell>{member.gender}</TableCell>
-                <TableCell>{member.age}</TableCell>
-                <TableCell>{member.occupation}</TableCell>
-                <TableCell>
+            {filteredMembers
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((member) => (
+                <TableRow key={member._id}>
+                  <TableCell>{member.name}</TableCell>
+                  <TableCell>{member.number}</TableCell>
+                  <TableCell>{member.gender}</TableCell>
+                  <TableCell>{member.age}</TableCell>
+                  <TableCell>{member.occupation}</TableCell>
                   <TableCell>
                     <Button
                       color="primary"
@@ -254,18 +276,27 @@ const GroupMembers = ({ groupId, onBack }) => {
                       <EditIcon />
                     </Button>
                   </TableCell>
-                </TableCell>
-              </TableRow>
-            ))}
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={filteredMembers.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
 
       <ImportMembersDialog
         open={openImportDialog}
         onClose={handleCloseImportDialog}
         onImport={handleImport}
         isImporting={isImporting}
+        groupId={groupId}
       />
 
       <EditMemberDialog

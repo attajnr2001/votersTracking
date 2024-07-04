@@ -12,22 +12,18 @@ const groupMemberSchema = mongoose.Schema(
     },
     gender: {
       type: String,
-      required: true,
     },
     age: {
       type: Number,
-      required: true,
     },
     occupation: {
       type: String,
-      required: true,
     },
     group: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Group",
       required: true,
     },
-    
   },
   {
     timestamps: true,
