@@ -150,6 +150,8 @@ const Groups = () => {
         Name: group.name,
         "Leader's Name": group.leaderName,
         "Leader's Phone": group.leaderPhone,
+        "Electoral Area": group.constituencyName,
+        Population: group.population,
       }))
     );
 
@@ -161,11 +163,21 @@ const Groups = () => {
     const doc = new jsPDF();
     doc.text("Groups", 20, 10);
     doc.autoTable({
-      head: [["Name", "Leader's Name", "Leader's Phone"]],
+      head: [
+        [
+          "Name",
+          "Leader's Name",
+          "Leader's Phone",
+          "Electoral Area",
+          "Population",
+        ],
+      ],
       body: filteredGroups.map((group) => [
         group.name,
         group.leaderName,
         group.leaderPhone,
+        group.constituencyName,
+        group.population,
       ]),
     });
     doc.save("groups.pdf");
@@ -264,6 +276,7 @@ const Groups = () => {
                       <TableCell>Leader's Name</TableCell>
                       <TableCell>Leader's Phone</TableCell>
                       <TableCell>Electoral Area</TableCell>
+                      <TableCell>Population</TableCell>
                       <TableCell sx={{ textAlign: "center" }}>
                         Actions
                       </TableCell>
@@ -276,6 +289,7 @@ const Groups = () => {
                         <TableCell>{group.leaderName}</TableCell>
                         <TableCell>{group.leaderPhone}</TableCell>
                         <TableCell>{group.constituencyName}</TableCell>
+                        <TableCell>{group.population}</TableCell>
                         <TableCell
                           sx={{
                             display: "flex",

@@ -3,13 +3,7 @@ import asyncHandler from "express-async-handler";
 import XLSX from "xlsx";
 import GroupMember from "../models/GroupMember.js";
 
-// Function to read Excel file and convert to JSON
-const excelToJson = (file) => {
-  const workbook = XLSX.read(file.buffer, { type: "buffer" });
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  return XLSX.utils.sheet_to_json(sheet);
-};
+
 
 const validateMemberData = (member) => {
   const { name, number, gender, age, occupation } = member;

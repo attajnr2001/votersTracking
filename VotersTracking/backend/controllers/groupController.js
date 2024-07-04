@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Group from "../models/Group.js";
 import Constituency from "../models/Constituency.js";
+import GroupMember from "../models/GroupMember.js";
 
 // @desc    Get all groups
 // @route   GET /api/groups
@@ -17,13 +18,25 @@ const getGroups = asyncHandler(async (req, res) => {
     return map;
   }, {});
 
-  // Add constituency name to each group
-  const groupsWithConstituencyNames = groups.map((group) => ({
+  // Fetch member counts for all groups
+  const memberCounts = await GroupMember.aggregate([
+    { $group: { _id: "$group", count: { $sum: 1 } } },
+  ]);
+
+  // Create a map of group IDs to member counts
+  const memberCountMap = memberCounts.reduce((map, item) => {
+    map[item._id.toString()] = item.count;
+    return map;
+  }, {});
+
+  // Add constituency name and member count to each group
+  const groupsWithDetails = groups.map((group) => ({
     ...group,
     constituencyName: constituencyMap[group.electoralArea] || "Unknown",
+    population: memberCountMap[group._id.toString()] || 0,
   }));
 
-  res.json(groupsWithConstituencyNames);
+  res.json(groupsWithDetails);
 });
 
 // @desc    Create a new group
