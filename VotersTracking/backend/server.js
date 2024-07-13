@@ -10,7 +10,7 @@ import voterRoutes from "./routes/voterRoutes.js";
 import constituencyRoutes from "./routes/constituencyRoutes.js";
 import galleryRoutes from "./routes/galleryRoutes.js";
 import groupRoutes from "./routes/groupRoutes.js";
-import groupMemberRoutes from "./routes/groupMemberRoutes.js";
+import groupMemberRoutes from "./routes/groupMemberRoutes.js"; 
 
 const port = process.env.PORT || 5000;
 

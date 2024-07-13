@@ -78,6 +78,7 @@ const AllVoters = () => {
           "https://worldtimeapi.org/api/timezone/Africa/Accra"
         );
         setCurrentDateTime(new Date(response.data.datetime));
+        console.log(voters);
       } catch (error) {
         console.error("Error fetching current time:", error);
         setCurrentDateTime(new Date());
@@ -89,9 +90,19 @@ const AllVoters = () => {
 
   const getAge = (dob) => {
     const birthDate = new Date(dob);
-    const ageDifMs = Date.now() - birthDate.getTime();
-    const ageDate = new Date(ageDifMs);
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
   };
 
   const handleChangePage = (event, newPage) => {
@@ -116,37 +127,22 @@ const AllVoters = () => {
         .slice()
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .filter((row) => {
-          let matchesFilter = true;
-          let matchesConstituency = true;
-          let matchesAgeRange = true;
-          let matchesPsCode =
-            userInfo.psCode === "all" || row.psCode === userInfo.psCode;
-
-          if (filter === "Males") matchesFilter = row.sex === "M";
-          if (filter === "Females") matchesFilter = row.sex === "F";
-          if (filter === "Below 40") matchesFilter = getAge(row.dob) < 40;
-          if (filter === "Above 40") matchesFilter = getAge(row.dob) >= 40;
-
-          if (userInfo.psCode === "all" && constituency) {
-            matchesConstituency = row.psCode === constituency;
+          // Constituency filter
+          if (constituency && constituency !== "") {
+            if (row.psCode !== constituency) {
+              return false;
+            }
           }
 
-          const age = getAge(row.dob);
-          if (minAge && maxAge) {
-            matchesAgeRange =
-              age >= parseInt(minAge) && age <= parseInt(maxAge);
-          } else if (minAge) {
-            matchesAgeRange = age >= parseInt(minAge);
-          } else if (maxAge) {
-            matchesAgeRange = age <= parseInt(maxAge);
+          // Gender filter
+          if (filter === "Males" && row.sex !== "M") {
+            return false;
+          }
+          if (filter === "Females" && row.sex !== "F") {
+            return false;
           }
 
-          return (
-            matchesFilter &&
-            matchesConstituency &&
-            matchesAgeRange &&
-            matchesPsCode
-          );
+          return true;
         })
     : [];
 
@@ -255,12 +251,12 @@ const AllVoters = () => {
             >
               <MenuItem value="">All</MenuItem>
               {constituencies &&
-                constituencies.map((constituency) => (
+                constituencies.map((constituencyItem) => (
                   <MenuItem
-                    key={constituency.psCode}
-                    value={constituency.psCode}
+                    key={constituencyItem.psCode}
+                    value={constituencyItem.psCode}
                   >
-                    {constituency.name}
+                    {constituencyItem.name}
                   </MenuItem>
                 ))}
             </TextField>
@@ -276,8 +272,6 @@ const AllVoters = () => {
             <MenuItem value="">None</MenuItem>
             <MenuItem value="Males">Males</MenuItem>
             <MenuItem value="Females">Females</MenuItem>
-            <MenuItem value="Below 40">Below 40</MenuItem>
-            <MenuItem value="Above 40">Above 40</MenuItem>
           </TextField>
 
           <TextField
