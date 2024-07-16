@@ -1,7 +1,7 @@
-// routes/groupRoutes.js
+// routes/groupRoutes.js 
 import express from "express";
 import {
-  getGroups,
+  getGroups, 
   createGroup,
   updateGroup,
   deleteGroup,
@@ -11,6 +11,6 @@ import { protect } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 router.route("/").get(getGroups).post(protect, createGroup);
-router.route("/:id").put(protect, updateGroup).delete(protect, deleteGroup);
+router.route("/:id").put(protect, updateGroup).delete(protect, deleteGroup); 
 
 export default router;

@@ -81,7 +81,6 @@ const AddBulkVoters = ({ open, onClose }) => {
           const profileBlob = await new Promise((resolve) =>
             profileCanvas.toBlob(resolve, "image/png")
           );
-
           // Upload the extracted profile image to Firebase
           const downloadURL = await uploadImageToFirebase(profileBlob);
           console.log(`Profile ${i + 1} uploaded. URL:`, downloadURL);
