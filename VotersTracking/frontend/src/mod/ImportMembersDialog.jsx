@@ -129,12 +129,11 @@ const ImportMembersDialog = ({
             multiline
             rows={10}
             value={extractedText}
+            onChange={(e) => setExtractedText(e.target.value)}
             fullWidth
             variant="outlined"
             sx={{ mt: 2 }}
-            InputProps={{
-              readOnly: true,
-            }}
+    
           />
         )}
       </DialogContent>
