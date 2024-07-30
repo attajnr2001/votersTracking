@@ -10,8 +10,8 @@ const voterSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    dob: {
-      type: Date,
+    age: {
+      type: Number,
       required: true,
     },
     psCode: {
@@ -25,7 +25,7 @@ const voterSchema = mongoose.Schema(
     },
     idNumber: {
       type: String,
-      required: true,  
+      required: true,
       unique: true,
     },
     dor: {
@@ -33,7 +33,7 @@ const voterSchema = mongoose.Schema(
       required: true,
     },
     image: {
-      type: String, // This will now store the Firebase URL
+      type: String,
       required: true,
     },
   },

@@ -1,11 +1,8 @@
 import asyncHandler from "express-async-handler";
 import Voter from "../models/Voter.js";
 
-// @desc    Add a new voter
-// @route   POST /api/voters
-// @access  Private
 const addVoter = asyncHandler(async (req, res) => {
-  const { surname, otherNames, dob, psCode, sex, idNumber, dor, image } =
+  const { surname, otherNames, age, psCode, sex, idNumber, dor, image } =
     req.body;
 
   const voterExists = await Voter.findOne({ idNumber });
@@ -18,7 +15,7 @@ const addVoter = asyncHandler(async (req, res) => {
   const voter = await Voter.create({
     surname,
     otherNames,
-    dob,
+    age,
     psCode,
     sex,
     idNumber,
@@ -31,7 +28,7 @@ const addVoter = asyncHandler(async (req, res) => {
       _id: voter._id,
       surname: voter.surname,
       otherNames: voter.otherNames,
-      dob: voter.dob,
+      age: voter.age,
       psCode: voter.psCode,
       sex: voter.sex,
       idNumber: voter.idNumber,
@@ -44,7 +41,7 @@ const addVoter = asyncHandler(async (req, res) => {
   }
 });
 
-const getVoters = asyncHandler(async (req, res) => { 
+const getVoters = asyncHandler(async (req, res) => {
   const { psCode } = req.query;
   let query = {};
 
@@ -54,9 +51,8 @@ const getVoters = asyncHandler(async (req, res) => {
 
   const voters = await Voter.find(query).sort({ createdAt: -1 });
   res.json(voters);
-  console.log(voters);
 });
-// In voterController.js
+
 const getTotalVoters = asyncHandler(async (req, res) => {
   const { psCode } = req.query;
   let query = psCode && psCode !== "all" ? { psCode } : {};
@@ -77,13 +73,11 @@ const getTotalVoters = asyncHandler(async (req, res) => {
 
 const getVotersBelow40 = asyncHandler(async (req, res) => {
   const { psCode } = req.query;
-  const fortyYearsAgo = new Date();
-  fortyYearsAgo.setFullYear(fortyYearsAgo.getFullYear() - 40);
 
   let query =
     psCode && psCode !== "all"
-      ? { psCode, dob: { $gt: fortyYearsAgo } }
-      : { dob: { $gt: fortyYearsAgo } };
+      ? { psCode, age: { $lt: 40 } }
+      : { age: { $lt: 40 } };
 
   const counts = await Voter.aggregate([
     { $match: query },
@@ -101,13 +95,11 @@ const getVotersBelow40 = asyncHandler(async (req, res) => {
 
 const getVotersAbove40 = asyncHandler(async (req, res) => {
   const { psCode } = req.query;
-  const fortyYearsAgo = new Date();
-  fortyYearsAgo.setFullYear(fortyYearsAgo.getFullYear() - 40);
 
   let query =
     psCode && psCode !== "all"
-      ? { psCode, dob: { $lte: fortyYearsAgo } }
-      : { dob: { $lte: fortyYearsAgo } };
+      ? { psCode, age: { $gte: 40 } }
+      : { age: { $gte: 40 } };
 
   const counts = await Voter.aggregate([
     { $match: query },
@@ -125,8 +117,6 @@ const getVotersAbove40 = asyncHandler(async (req, res) => {
 
 const getConstituencyData = asyncHandler(async (req, res) => {
   const { psCode } = req.params;
-  const fortyYearsAgo = new Date();
-  fortyYearsAgo.setFullYear(fortyYearsAgo.getFullYear() - 40);
 
   const data = await Voter.aggregate([
     { $match: { psCode: psCode } },
@@ -135,28 +125,24 @@ const getConstituencyData = asyncHandler(async (req, res) => {
         _id: null,
         male: { $sum: { $cond: [{ $eq: ["$sex", "M"] }, 1, 0] } },
         female: { $sum: { $cond: [{ $eq: ["$sex", "F"] }, 1, 0] } },
-        above40: { $sum: { $cond: [{ $lte: ["$dob", fortyYearsAgo] }, 1, 0] } },
-        below40: { $sum: { $cond: [{ $gt: ["$dob", fortyYearsAgo] }, 1, 0] } },
+        above40: { $sum: { $cond: [{ $gte: ["$age", 40] }, 1, 0] } },
+        below40: { $sum: { $cond: [{ $lt: ["$age", 40] }, 1, 0] } },
       },
     },
   ]);
 
   res.json(data[0] || { male: 0, female: 0, above40: 0, below40: 0 });
 });
-// In voterController.js
 
 const getAllConstituenciesData = asyncHandler(async (req, res) => {
-  const fortyYearsAgo = new Date();
-  fortyYearsAgo.setFullYear(fortyYearsAgo.getFullYear() - 40);
-
   const data = await Voter.aggregate([
     {
       $group: {
         _id: "$psCode",
         male: { $sum: { $cond: [{ $eq: ["$sex", "M"] }, 1, 0] } },
         female: { $sum: { $cond: [{ $eq: ["$sex", "F"] }, 1, 0] } },
-        above40: { $sum: { $cond: [{ $lte: ["$dob", fortyYearsAgo] }, 1, 0] } },
-        below40: { $sum: { $cond: [{ $gt: ["$dob", fortyYearsAgo] }, 1, 0] } },
+        above40: { $sum: { $cond: [{ $gte: ["$age", 40] }, 1, 0] } },
+        below40: { $sum: { $cond: [{ $lt: ["$age", 40] }, 1, 0] } },
       },
     },
     {

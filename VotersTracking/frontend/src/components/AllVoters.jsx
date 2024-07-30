@@ -88,23 +88,6 @@ const AllVoters = () => {
     fetchCurrentTime();
   }, []);
 
-  const getAge = (dob) => {
-    const birthDate = new Date(dob);
-    const today = new Date();
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-
-    if (
-      monthDifference < 0 ||
-      (monthDifference === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-
-    return age;
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -123,34 +106,33 @@ const AllVoters = () => {
   };
 
   const filteredRows = voters
-  ? voters
-      .slice()
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .filter((row) => {
-        // Constituency filter
-        if (constituency && constituency !== "") {
-          if (row.psCode !== constituency) {
+    ? voters
+        .slice()
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .filter((row) => {
+          // Constituency filter
+          if (constituency && constituency !== "") {
+            if (row.psCode !== constituency) {
+              return false;
+            }
+          }
+
+          // Gender filter
+          if (filter === "Males" && row.sex !== "M") {
             return false;
           }
-        }
+          if (filter === "Females" && row.sex !== "F") {
+            return false;
+          }
 
-        // Gender filter
-        if (filter === "Males" && row.sex !== "M") {
-          return false;
-        }
-        if (filter === "Females" && row.sex !== "F") {
-          return false;
-        }
+          // Age filter
+          if (row.age < minAge || row.age > maxAge) {
+            return false;
+          }
 
-        // Age filter
-        const age = getAge(row.dob);
-        if (age < minAge || age > maxAge) {
-          return false;
-        }
-
-        return true;
-      })
-  : [];
+          return true;
+        })
+    : [];
 
   if (isLoadingVoters || isLoadingConstituencies || !currentDateTime) {
     return <CircularProgress />;
@@ -170,8 +152,7 @@ const AllVoters = () => {
         Sex: row.sex,
         "PS Code": row.psCode,
         "ID Number": row.idNumber,
-        "Date of Birth": new Date(row.dob).toLocaleDateString(),
-        Age: getAge(row.dob),
+        Age: row.age,
         "Date of Registration": new Date(row.dor).toLocaleDateString(),
       }))
     );
@@ -193,7 +174,6 @@ const AllVoters = () => {
           "Sex",
           "PS Code",
           "ID Number",
-          "Date of Birth",
           "Age",
           "Date of Reg",
         ],
@@ -204,8 +184,7 @@ const AllVoters = () => {
         row.sex,
         row.psCode,
         row.idNumber,
-        new Date(row.dob).toLocaleDateString(),
-        getAge(row.dob),
+        row.age,
         new Date(row.dor).toLocaleDateString(),
       ]),
     });
@@ -310,7 +289,6 @@ const AllVoters = () => {
               <TableCell sx={{ color: "white" }}>Sex</TableCell>
               <TableCell sx={{ color: "white" }}>PS Code</TableCell>
               <TableCell sx={{ color: "white" }}>Id Number</TableCell>
-              <TableCell sx={{ color: "white" }}>Date of Birth</TableCell>
               <TableCell sx={{ color: "white" }}>Age</TableCell>
               <TableCell sx={{ color: "white" }}>
                 Date of Registration
@@ -337,10 +315,7 @@ const AllVoters = () => {
                     <TableCell>{row.sex}</TableCell>
                     <TableCell>{row.psCode}</TableCell>
                     <TableCell>{row.idNumber}</TableCell>
-                    <TableCell>
-                      {new Date(row.dob).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>{getAge(row.dob)}</TableCell>
+                    <TableCell>{row.age}</TableCell>
                     <TableCell>
                       {new Date(row.dor).toLocaleDateString()}
                     </TableCell>

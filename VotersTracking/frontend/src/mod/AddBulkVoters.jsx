@@ -156,7 +156,7 @@ const AddBulkVoters = ({ open, onClose }) => {
             variant="contained"
             disabled={!selectedFile || isLoading}
           >
-            {isLoading ? "Processing..." : "Extract Last Row Photos"}
+            {isLoading ? "Processing..." : "Extract Photos"}
           </Button>
         </DialogActions>
       </Dialog>

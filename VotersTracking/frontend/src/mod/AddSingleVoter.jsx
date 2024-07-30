@@ -32,7 +32,7 @@ const AddSingleVoter = ({ open, onClose }) => {
   const [surname, setSurname] = useState("");
   const [otherNames, setOtherNames] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [dob, setDob] = useState("");
+  const [age, setAge] = useState("");
   const [psCode, setPsCode] = useState(
     userInfo.psCode !== "all" ? userInfo.psCode : ""
   );
@@ -54,9 +54,16 @@ const AddSingleVoter = ({ open, onClose }) => {
   } = useGetConstituenciesQuery();
 
   const handleIdNumberChange = (e) => {
-    const value = e.target.value.replace(/\D/g, ""); // Remove non-digit characters
+    const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 10) {
       setIdNumber(value);
+    }
+  };
+
+  const handleAgeChange = (e) => {
+    const value = e.target.value.replace(/\D/g, "");
+    if (parseInt(value) <= 120) {
+      setAge(value);
     }
   };
 
@@ -64,7 +71,7 @@ const AddSingleVoter = ({ open, onClose }) => {
     return (
       surname.trim() !== "" &&
       otherNames.trim() !== "" &&
-      dob !== "" &&
+      age !== "" &&
       psCode !== "" &&
       sex !== "" &&
       idNumber.trim() !== "" &&
@@ -74,7 +81,7 @@ const AddSingleVoter = ({ open, onClose }) => {
 
   useEffect(() => {
     setIsFormValid(checkFormValidity());
-  }, [surname, otherNames, dob, psCode, sex, idNumber, dor]);
+  }, [surname, otherNames, age, psCode, sex, idNumber, dor]);
 
   // Snackbar state
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -129,7 +136,7 @@ const AddSingleVoter = ({ open, onClose }) => {
       const res = await addVoter({
         surname,
         otherNames,
-        dob,
+        age: parseInt(age),
         psCode,
         sex,
         idNumber,
@@ -141,7 +148,7 @@ const AddSingleVoter = ({ open, onClose }) => {
       // Reset form state
       setSurname("");
       setOtherNames("");
-      setDob("");
+      setAge("");
       setPsCode("");
       setSex("");
       setIdNumber("");
@@ -196,14 +203,15 @@ const AddSingleVoter = ({ open, onClose }) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                label="Date of Birth"
-                type="date"
+                label="Age"
                 variant="outlined"
                 fullWidth
-                value={dob}
-                onChange={(e) => setDob(e.target.value)}
-                InputLabelProps={{
-                  shrink: true,
+                value={age}
+                onChange={handleAgeChange}
+                inputProps={{
+                  maxLength: 3,
+                  pattern: "[0-9]*",
+                  inputMode: "numeric",
                 }}
               />
             </Grid>
@@ -311,15 +319,12 @@ const AddSingleVoter = ({ open, onClose }) => {
             {isSaving ? "Saving..." : "Save"}
           </Button>
         </DialogActions>
-
-        {/* Snackbar for success or error */}
       </Dialog>
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
-
       >
         <Alert
           onClose={handleSnackbarClose}
