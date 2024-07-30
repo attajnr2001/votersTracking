@@ -44,7 +44,7 @@ const addVoter = asyncHandler(async (req, res) => {
   }
 });
 
-const getVoters = asyncHandler(async (req, res) => {
+const getVoters = asyncHandler(async (req, res) => { 
   const { psCode } = req.query;
   let query = {};
 

@@ -123,28 +123,34 @@ const AllVoters = () => {
   };
 
   const filteredRows = voters
-    ? voters
-        .slice()
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((row) => {
-          // Constituency filter
-          if (constituency && constituency !== "") {
-            if (row.psCode !== constituency) {
-              return false;
-            }
-          }
-
-          // Gender filter
-          if (filter === "Males" && row.sex !== "M") {
+  ? voters
+      .slice()
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .filter((row) => {
+        // Constituency filter
+        if (constituency && constituency !== "") {
+          if (row.psCode !== constituency) {
             return false;
           }
-          if (filter === "Females" && row.sex !== "F") {
-            return false;
-          }
+        }
 
-          return true;
-        })
-    : [];
+        // Gender filter
+        if (filter === "Males" && row.sex !== "M") {
+          return false;
+        }
+        if (filter === "Females" && row.sex !== "F") {
+          return false;
+        }
+
+        // Age filter
+        const age = getAge(row.dob);
+        if (age < minAge || age > maxAge) {
+          return false;
+        }
+
+        return true;
+      })
+  : [];
 
   if (isLoadingVoters || isLoadingConstituencies || !currentDateTime) {
     return <CircularProgress />;

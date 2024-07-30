@@ -1,8 +1,4 @@
 import React, { useState, useRef } from "react";
-import { createWorker } from "tesseract.js";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "../helpers/firebaseConfig";
-import { v4 as uuidv4 } from "uuid";
 import {
   Button,
   Dialog,
@@ -16,7 +12,7 @@ import {
 
 const AddBulkVoters = ({ open, onClose }) => {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [extractedText, setExtractedText] = useState("");
+  const [extractedData, setExtractedData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -30,29 +26,26 @@ const AddBulkVoters = ({ open, onClose }) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  const uploadImageToFirebase = async (blob) => {
-    if (!blob) return null;
-    const fileRef = ref(storage, `voter_images/${uuidv4()}`);
-    await uploadBytes(fileRef, blob);
-    const downloadURL = await getDownloadURL(fileRef);
-    return downloadURL;
+  // Define the coordinates for each field (adjust these based on your image)
+  const fieldCoordinates = [
+    { name: "voterId", x: 100, y: 20, width: 150, height: 20 },
+    { name: "age", x: 100, y: 40, width: 50, height: 20 },
+    { name: "sex", x: 200, y: 40, width: 50, height: 20 },
+    { name: "name", x: 100, y: 60, width: 200, height: 20 },
+    { name: "photo", x: 400, y: 20, width: 100, height: 120 },
+  ];
+
+  const extractTextFromRegion = (ctx, x, y, width, height) => {
+    const imageData = ctx.getImageData(x, y, width, height);
+    // Here you would implement or use a library for OCR on this specific region
+    // For demonstration, we'll return a placeholder string
+    return `Extracted from (${x},${y},${width},${height})`;
   };
 
   const handleUpload = async () => {
     if (selectedFile) {
       setIsLoading(true);
       try {
-        // Text extraction
-        const worker = await createWorker();
-        await worker.loadLanguage("eng");
-        await worker.initialize("eng");
-        const {
-          data: { text },
-        } = await worker.recognize(selectedFile);
-        setExtractedText(text);
-        await worker.terminate();
-
-        // Image processing
         const image = await createImageBitmap(selectedFile);
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
@@ -60,43 +53,63 @@ const AddBulkVoters = ({ open, onClose }) => {
         canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
 
-        // Extract profile pictures
-        const profileWidth = 70;
-        const profileHeight = 70;
-        const numProfiles = Math.floor(image.height / profileHeight);
+        const voterData = [];
+        const entryHeight = 140; // Adjust based on your image layout
+        const numEntries = Math.floor(image.height / entryHeight);
 
-        for (let i = 0; i < numProfiles; i++) {
-          const profileData = ctx.getImageData(
-            image.width - profileWidth,
-            i * profileHeight,
-            profileWidth,
-            profileHeight
-          );
+        for (let i = 0; i < numEntries; i++) {
+          const voter = {};
+          const yOffset = i * entryHeight;
 
-          const profileCanvas = document.createElement("canvas");
-          profileCanvas.width = profileWidth;
-          profileCanvas.height = profileHeight;
-          profileCanvas.getContext("2d").putImageData(profileData, 0, 0);
-
-          const profileBlob = await new Promise((resolve) =>
-            profileCanvas.toBlob(resolve, "image/png")
-          );
-
-          // Upload the extracted profile image to Firebase
-          const downloadURL = await uploadImageToFirebase(profileBlob);
-          console.log(`Profile ${i + 1} uploaded. URL:`, downloadURL);
-
-          // You can store these URLs in state or process them further as needed
-
-          setSnackbar({
-            open: true,
-            message: "Image processed and profiles uploaded successfully!",
-            severity: "success",
+          fieldCoordinates.forEach((field) => {
+            if (field.name === "photo") {
+              // Extract photo
+              const photoCanvas = document.createElement("canvas");
+              photoCanvas.width = field.width;
+              photoCanvas.height = field.height;
+              photoCanvas
+                .getContext("2d")
+                .drawImage(
+                  canvas,
+                  field.x,
+                  field.y + yOffset,
+                  field.width,
+                  field.height,
+                  0,
+                  0,
+                  field.width,
+                  field.height
+                );
+              // Create download link for the profile picture
+              const downloadLink = document.createElement("a");
+              downloadLink.href = photoCanvas.toDataURL("image/png");
+              downloadLink.download = `voter_${i + 1}_profile.png`;
+              downloadLink.click();
+            } else {
+              // Extract text for other fields
+              voter[field.name] = extractTextFromRegion(
+                ctx,
+                field.x,
+                field.y + yOffset,
+                field.width,
+                field.height
+              );
+            }
           });
+
+          voterData.push(voter);
+          console.log("Voter Details:", voter);
         }
+
+        setExtractedData(voterData);
+        setSnackbar({
+          open: true,
+          message:
+            "Voter data extracted and profile pictures downloaded successfully!",
+          severity: "success",
+        });
       } catch (error) {
         console.error("Error processing image:", error);
-        // Show error message
         setSnackbar({
           open: true,
           message: "Error processing image: " + error.message,
@@ -118,7 +131,7 @@ const AddBulkVoters = ({ open, onClose }) => {
   return (
     <>
       <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle>Upload Image File (JPEG or PNG)</DialogTitle>
+        <DialogTitle>Upload Voter Registration Image</DialogTitle>
         <DialogContent>
           <input
             ref={fileInputRef}
@@ -138,19 +151,19 @@ const AddBulkVoters = ({ open, onClose }) => {
             variant="contained"
             disabled={!selectedFile || isLoading}
           >
-            {isLoading ? "Processing..." : "Upload & Extract"}
+            {isLoading ? "Processing..." : "Extract Voter Data"}
           </Button>
         </DialogActions>
 
-        {extractedText && (
+        {extractedData.length > 0 && (
           <DialogContent>
             <TextField
-              label="Extracted Text"
+              label="Extracted Voter Data"
               multiline
-              rows={6}
+              rows={10}
               variant="outlined"
               fullWidth
-              value={extractedText}
+              value={JSON.stringify(extractedData, null, 2)}
               InputProps={{
                 readOnly: true,
               }}

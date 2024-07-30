@@ -66,6 +66,11 @@ const ImportMembersDialog = ({
     }
   };
 
+  const handleCleanText = () => {
+    const cleanedText = extractedText.replace(/[^a-zA-Z0-9\s.]/g, "");
+    setExtractedText(cleanedText);
+  };
+
   const parseExtractedText = (text) => {
     const lines = text.split("\n");
     return lines
@@ -77,7 +82,7 @@ const ImportMembersDialog = ({
           return {
             name,
             number,
-            gender: "", // Add default values
+            gender: "",
             age: "",
             occupation: "",
           };
@@ -124,17 +129,26 @@ const ImportMembersDialog = ({
           {isProcessing ? <CircularProgress size={24} /> : "Extract Text"}
         </Button>
         {extractedText && (
-          <TextField
-            label="Extracted Text"
-            multiline
-            rows={10}
-            value={extractedText}
-            onChange={(e) => setExtractedText(e.target.value)}
-            fullWidth
-            variant="outlined"
-            sx={{ mt: 2 }}
-    
-          />
+          <>
+            <Button
+              onClick={handleCleanText}
+              color="secondary"
+              variant="contained"
+              sx={{ mt: 2, ml: 2 }}
+            >
+              Clean Text
+            </Button>
+            <TextField
+              label="Extracted Text"
+              multiline
+              rows={10}
+              value={extractedText}
+              onChange={(e) => setExtractedText(e.target.value)}
+              fullWidth
+              variant="outlined"
+              sx={{ mt: 2 }}
+            />
+          </>
         )}
       </DialogContent>
       <DialogActions>
@@ -146,7 +160,6 @@ const ImportMembersDialog = ({
         >
           {isImporting ? <CircularProgress size={24} /> : "Import"}
         </Button>
-        <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
   );
