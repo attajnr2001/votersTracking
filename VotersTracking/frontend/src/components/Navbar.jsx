@@ -283,7 +283,9 @@ function Navbar(props) {
           onClose={handleMenuClose}
         >
           <MenuItem onClick={handleAddSingleClick}>Add Single Voter</MenuItem>
-          <MenuItem onClick={handleAddBulkClick}>Add Bulk Voters</MenuItem>
+          <MenuItem onClick={handleAddBulkClick}>
+            Extract Voters images
+          </MenuItem>
         </Menu>
         <Menu
           anchorEl={mediaAnchorEl}

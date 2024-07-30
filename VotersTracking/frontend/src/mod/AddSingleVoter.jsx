@@ -38,7 +38,7 @@ const AddSingleVoter = ({ open, onClose }) => {
   );
   const [sex, setSex] = useState("");
   const [idNumber, setIdNumber] = useState("");
-  const [dor, setDor] = useState("");
+  const [dor, setDor] = useState("2020-12-01T00:00:00.000+00:00");
   const [image, setImage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
@@ -145,7 +145,6 @@ const AddSingleVoter = ({ open, onClose }) => {
       }).unwrap();
       dispatch(votersApiSlice.util.invalidateTags(["Voter"]));
 
-      // Reset form state
       setSurname("");
       setOtherNames("");
       setAge("");
@@ -265,21 +264,7 @@ const AddSingleVoter = ({ open, onClose }) => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Date of Registration"
-                type="date"
-                variant="outlined"
-                fullWidth
-                value={dor}
-                onChange={(e) => setDor(e.target.value)}
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-            </Grid>
             <Grid item xs={12}>
-              {/* Input for selecting a file */}
               <input
                 accept="image/*"
                 style={{ display: "none" }}

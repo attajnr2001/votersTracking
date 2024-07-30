@@ -88,6 +88,23 @@ const AllVoters = () => {
     fetchCurrentTime();
   }, []);
 
+  const getAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -126,7 +143,8 @@ const AllVoters = () => {
           }
 
           // Age filter
-          if (row.age < minAge || row.age > maxAge) {
+          const age = getAge(row.dob);
+          if (age < minAge || age > maxAge) {
             return false;
           }
 
@@ -152,7 +170,8 @@ const AllVoters = () => {
         Sex: row.sex,
         "PS Code": row.psCode,
         "ID Number": row.idNumber,
-        Age: row.age,
+        "Date of Birth": new Date(row.dob).toLocaleDateString(),
+        Age: getAge(row.dob),
         "Date of Registration": new Date(row.dor).toLocaleDateString(),
       }))
     );
@@ -174,6 +193,7 @@ const AllVoters = () => {
           "Sex",
           "PS Code",
           "ID Number",
+          "Date of Birth",
           "Age",
           "Date of Reg",
         ],
@@ -184,7 +204,8 @@ const AllVoters = () => {
         row.sex,
         row.psCode,
         row.idNumber,
-        row.age,
+        new Date(row.dob).toLocaleDateString(),
+        getAge(row.dob),
         new Date(row.dor).toLocaleDateString(),
       ]),
     });
