@@ -290,7 +290,6 @@ const GroupMembers = ({ groupId, onBack }) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-
       <ImportMembersDialog
         open={openImportDialog}
         onClose={handleCloseImportDialog}
@@ -298,7 +297,6 @@ const GroupMembers = ({ groupId, onBack }) => {
         isImporting={isImporting}
         groupId={groupId}
       />
-
       <EditMemberDialog
         open={editDialogOpen}
         onClose={handleCloseEditDialog}

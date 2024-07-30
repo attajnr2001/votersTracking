@@ -5,14 +5,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
   Snackbar,
   Alert,
 } from "@mui/material";
 
 const AddBulkVoters = ({ open, onClose }) => {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [extractedData, setExtractedData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -26,20 +24,81 @@ const AddBulkVoters = ({ open, onClose }) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  // Define the coordinates for each field (adjust these based on your image)
-  const fieldCoordinates = [
-    { name: "voterId", x: 100, y: 20, width: 150, height: 20 },
-    { name: "age", x: 100, y: 40, width: 50, height: 20 },
-    { name: "sex", x: 200, y: 40, width: 50, height: 20 },
-    { name: "name", x: 100, y: 60, width: 200, height: 20 },
-    { name: "photo", x: 400, y: 20, width: 100, height: 120 },
-  ];
+  const extractPhotos = async (image) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.drawImage(image, 0, 0);
 
-  const extractTextFromRegion = (ctx, x, y, width, height) => {
-    const imageData = ctx.getImageData(x, y, width, height);
-    // Here you would implement or use a library for OCR on this specific region
-    // For demonstration, we'll return a placeholder string
-    return `Extracted from (${x},${y},${width},${height})`;
+    const cmToPixels = (cm) => Math.round((cm / 21.6) * image.height);
+
+    const photoWidth = cmToPixels(2.4);
+    const photoHeight = cmToPixels(3.41);
+    const rowSpacing = cmToPixels(0.2);
+    const totalRowHeight = photoHeight + rowSpacing;
+
+    const leftColumnX = cmToPixels(6);
+    const rightColumnX = cmToPixels(15.1);
+
+    console.log(`Image dimensions: ${image.width}x${image.height}`);
+    console.log(`Photo dimensions: ${photoWidth}x${photoHeight}`);
+    console.log(`Row spacing: ${rowSpacing}`);
+    console.log(`Total row height: ${totalRowHeight}`);
+
+    const extractPhoto = (x, y, index) => {
+      const photoCanvas = document.createElement("canvas");
+      photoCanvas.width = photoWidth;
+      photoCanvas.height = photoHeight;
+      const photoCtx = photoCanvas.getContext("2d");
+      photoCtx.drawImage(
+        canvas,
+        x,
+        y,
+        photoWidth,
+        photoHeight,
+        0,
+        0,
+        photoWidth,
+        photoHeight
+      );
+
+      const downloadLink = document.createElement("a");
+      downloadLink.href = photoCanvas.toDataURL("image/png");
+      downloadLink.download = `voter_${index + 1}_profile.png`;
+      downloadLink.click();
+
+      console.log(`Extracted photo ${index + 1} at (${x}, ${y})`);
+      return true;
+    };
+
+    let photoIndex = 0;
+    let y = 0;
+    const extractedPhotos = [];
+
+    while (photoIndex < 12) {
+      if (extractPhoto(leftColumnX, y, photoIndex)) {
+        extractedPhotos.push({ index: photoIndex, column: "left", y });
+        photoIndex++;
+      }
+
+      if (photoIndex < 12 && extractPhoto(rightColumnX, y, photoIndex)) {
+        extractedPhotos.push({ index: photoIndex, column: "right", y });
+        photoIndex++;
+      }
+
+      y += totalRowHeight;
+
+      if (y + photoHeight > image.height && photoIndex < 12) {
+        console.log(
+          `Warning: Reached end of image before extracting all 12 photos. Extracted ${photoIndex} photos.`
+        );
+        break;
+      }
+    }
+
+    console.log("Extracted photos:", extractedPhotos);
+    return extractedPhotos.length;
   };
 
   const handleUpload = async () => {
@@ -47,65 +106,11 @@ const AddBulkVoters = ({ open, onClose }) => {
       setIsLoading(true);
       try {
         const image = await createImageBitmap(selectedFile);
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        canvas.width = image.width;
-        canvas.height = image.height;
-        ctx.drawImage(image, 0, 0);
+        const extractedCount = await extractPhotos(image);
 
-        const voterData = [];
-        const entryHeight = 140; // Adjust based on your image layout
-        const numEntries = Math.floor(image.height / entryHeight);
-
-        for (let i = 0; i < numEntries; i++) {
-          const voter = {};
-          const yOffset = i * entryHeight;
-
-          fieldCoordinates.forEach((field) => {
-            if (field.name === "photo") {
-              // Extract photo
-              const photoCanvas = document.createElement("canvas");
-              photoCanvas.width = field.width;
-              photoCanvas.height = field.height;
-              photoCanvas
-                .getContext("2d")
-                .drawImage(
-                  canvas,
-                  field.x,
-                  field.y + yOffset,
-                  field.width,
-                  field.height,
-                  0,
-                  0,
-                  field.width,
-                  field.height
-                );
-              // Create download link for the profile picture
-              const downloadLink = document.createElement("a");
-              downloadLink.href = photoCanvas.toDataURL("image/png");
-              downloadLink.download = `voter_${i + 1}_profile.png`;
-              downloadLink.click();
-            } else {
-              // Extract text for other fields
-              voter[field.name] = extractTextFromRegion(
-                ctx,
-                field.x,
-                field.y + yOffset,
-                field.width,
-                field.height
-              );
-            }
-          });
-
-          voterData.push(voter);
-          console.log("Voter Details:", voter);
-        }
-
-        setExtractedData(voterData);
         setSnackbar({
           open: true,
-          message:
-            "Voter data extracted and profile pictures downloaded successfully!",
+          message: `Successfully extracted ${extractedCount} photos!`,
           severity: "success",
         });
       } catch (error) {
@@ -151,25 +156,9 @@ const AddBulkVoters = ({ open, onClose }) => {
             variant="contained"
             disabled={!selectedFile || isLoading}
           >
-            {isLoading ? "Processing..." : "Extract Voter Data"}
+            {isLoading ? "Processing..." : "Extract Last Row Photos"}
           </Button>
         </DialogActions>
-
-        {extractedData.length > 0 && (
-          <DialogContent>
-            <TextField
-              label="Extracted Voter Data"
-              multiline
-              rows={10}
-              variant="outlined"
-              fullWidth
-              value={JSON.stringify(extractedData, null, 2)}
-              InputProps={{
-                readOnly: true,
-              }}
-            />
-          </DialogContent>
-        )}
       </Dialog>
       <Snackbar
         anchorOrigin={{ vertical: "top", horizontal: "center" }}

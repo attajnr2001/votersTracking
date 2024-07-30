@@ -121,7 +121,7 @@ const Groups = () => {
     try {
       await deleteGroup(id).unwrap();
       handleSnackbarOpen("Group deleted successfully", "success");
-    } catch (err) { 
+    } catch (err) {
       console.error("Failed to delete the group", err);
       handleSnackbarOpen("Failed to delete the group", "error");
     }
