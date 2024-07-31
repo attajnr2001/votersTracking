@@ -294,21 +294,19 @@ const AllVoters = () => {
         {filter ? ` (${filter})` : ""}
         {` [${minAge} and ${maxAge}]`}
       </Typography>
-      
+
       <TableContainer>
         <Table>
           <TableHead sx={{ backgroundColor: "primary.main" }}>
             <TableRow>
-              <TableCell sx={{ color: "white" }}>Avatar</TableCell>
+              <TableCell sx={{ color: "white" }}>Image</TableCell>
               <TableCell sx={{ color: "white" }}>Surname</TableCell>
               <TableCell sx={{ color: "white" }}>Other Names</TableCell>
               <TableCell sx={{ color: "white" }}>Sex</TableCell>
               <TableCell sx={{ color: "white" }}>PS Code</TableCell>
               <TableCell sx={{ color: "white" }}>Id Number</TableCell>
               <TableCell sx={{ color: "white" }}>Age</TableCell>
-              <TableCell sx={{ color: "white" }}>
-                Date of Registration
-              </TableCell>
+              <TableCell sx={{ color: "white" }}>Date of Reg.</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

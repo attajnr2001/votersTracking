@@ -43,7 +43,7 @@ const Groups = () => {
   const [updateGroup] = useUpdateGroupMutation();
   const [deleteGroup] = useDeleteGroupMutation();
   const [viewingGroupId, setViewingGroupId] = useState(null);
-
+  const [groupCount, setGroupCount] = useState(0);
   const [openDialog, setOpenDialog] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -61,9 +61,11 @@ const Groups = () => {
 
   const filteredGroups = useMemo(() => {
     if (!groups) return [];
-    return groups.filter((group) =>
+    const filtered = groups.filter((group) =>
       group.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+    setGroupCount(filtered.length);
+    return filtered;
   }, [groups, searchTerm]);
 
   const handleOpenDialog = (group = null) => {
@@ -247,6 +249,15 @@ const Groups = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+
+                <Typography
+                  variant="body1"
+                  color="error"
+                  mb={2}
+                  fontWeight={"bold"}
+                >
+                  {groupCount} group{groupCount !== 1 ? "s" : ""}
+                </Typography>
 
                 <Box sx={{ display: "flex", gap: 1 }}>
                   <Button

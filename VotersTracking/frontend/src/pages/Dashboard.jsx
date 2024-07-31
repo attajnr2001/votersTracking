@@ -8,7 +8,7 @@ import ConstituencyVotersChart from "../components/ConstituencyVotersChart";
 
 const Dashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
-  const [showChart, setShowChart] = useState(false);
+  const [showChart, setShowChart] = useState(true);
 
   const toggleChart = () => {
     setShowChart((prevShowChart) => !prevShowChart);

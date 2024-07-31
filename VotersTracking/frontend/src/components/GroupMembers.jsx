@@ -38,7 +38,7 @@ const GroupMembers = ({ groupId, onBack }) => {
     isError,
     refetch,
   } = useGetGroupMembersQuery(groupId);
-
+  const [memberCount, setMemberCount] = useState(0);
   const groupName = groupData && groupData[0]?.group?.name;
   const members = groupData || [];
 
@@ -112,6 +112,11 @@ const GroupMembers = ({ groupId, onBack }) => {
           member.occupation.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
+
+  // Update the member count
+  React.useEffect(() => {
+    setMemberCount(filteredMembers.length);
+  }, [filteredMembers]);
 
   if (isLoading) {
     return <CircularProgress />;
@@ -217,6 +222,10 @@ const GroupMembers = ({ groupId, onBack }) => {
             Import Group Members
           </Button>
         </Box>
+
+        <Typography variant="body1" color="error" mb={2} fontWeight={"bold"}>
+          {memberCount} member{memberCount !== 1 ? "s" : ""}
+        </Typography>
 
         <Box sx={{ display: "flex", gap: 1 }}>
           <TextField
