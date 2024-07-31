@@ -36,6 +36,7 @@ const AllVoters = () => {
   const [minAge, setMinAge] = useState(18);
   const [maxAge, setMaxAge] = useState(100);
   const { userInfo } = useSelector((state) => state.auth);
+  const [filteredCount, setFilteredCount] = useState(0);
 
   const handleMinAgeChange = (event) => {
     const newMinAge = Math.max(
@@ -88,23 +89,6 @@ const AllVoters = () => {
     fetchCurrentTime();
   }, []);
 
-  const getAge = (dob) => {
-    const birthDate = new Date(dob);
-    const today = new Date();
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-
-    if (
-      monthDifference < 0 ||
-      (monthDifference === 0 && today.getDate() < birthDate.getDate())
-    ) {
-      age--;
-    }
-
-    return age;
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -122,36 +106,41 @@ const AllVoters = () => {
     setConstituency(event.target.value);
   };
 
-  const filteredRows = voters
-    ? voters
-        .slice()
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .filter((row) => {
-          // Constituency filter
-          if (constituency && constituency !== "") {
-            if (row.psCode !== constituency) {
+  const filteredRows = React.useMemo(() => {
+    return voters
+      ? voters
+          .slice()
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .filter((row) => {
+            // Constituency filter
+            if (constituency && constituency !== "") {
+              if (row.psCode !== constituency) {
+                return false;
+              }
+            }
+
+            // Gender filter
+            if (filter === "Males" && row.sex !== "M") {
               return false;
             }
-          }
+            if (filter === "Females" && row.sex !== "F") {
+              return false;
+            }
 
-          // Gender filter
-          if (filter === "Males" && row.sex !== "M") {
-            return false;
-          }
-          if (filter === "Females" && row.sex !== "F") {
-            return false;
-          }
+            // Age filter
+            if (row.age < minAge || row.age > maxAge) {
+              return false;
+            }
 
-          // Age filter
-          const age = getAge(row.dob);
-          if (age < minAge || age > maxAge) {
-            return false;
-          }
+            return true;
+          })
+      : [];
+  }, [voters, constituency, filter, minAge, maxAge]);
 
-          return true;
-        })
-    : [];
-
+  // Update the filtered count
+  useEffect(() => {
+    setFilteredCount(filteredRows.length);
+  }, [filteredRows]);
   if (isLoadingVoters || isLoadingConstituencies || !currentDateTime) {
     return <CircularProgress />;
   }
@@ -170,8 +159,7 @@ const AllVoters = () => {
         Sex: row.sex,
         "PS Code": row.psCode,
         "ID Number": row.idNumber,
-        "Date of Birth": new Date(row.dob).toLocaleDateString(),
-        Age: getAge(row.dob),
+        Age: row.age,
         "Date of Registration": new Date(row.dor).toLocaleDateString(),
       }))
     );
@@ -204,8 +192,7 @@ const AllVoters = () => {
         row.sex,
         row.psCode,
         row.idNumber,
-        new Date(row.dob).toLocaleDateString(),
-        getAge(row.dob),
+        row.age,
         new Date(row.dor).toLocaleDateString(),
       ]),
     });
@@ -300,6 +287,14 @@ const AllVoters = () => {
           />
         </Box>
       </Box>
+
+      <Typography variant="body1" color="error" mb={2} fontWeight={"bold"}>
+        Voter's Count: {filteredCount} voter{filteredCount !== 1 ? "s" : ""}
+        {constituency ? ` in ${constituency}` : ""}
+        {filter ? ` (${filter})` : ""}
+        {` [${minAge} and ${maxAge}]`}
+      </Typography>
+      
       <TableContainer>
         <Table>
           <TableHead sx={{ backgroundColor: "primary.main" }}>

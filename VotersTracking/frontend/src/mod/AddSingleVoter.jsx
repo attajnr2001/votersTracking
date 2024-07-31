@@ -33,10 +33,8 @@ const AddSingleVoter = ({ open, onClose }) => {
   const [otherNames, setOtherNames] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [age, setAge] = useState("");
-  const [psCode, setPsCode] = useState(
-    userInfo.psCode !== "all" ? userInfo.psCode : ""
-  );
-  const [sex, setSex] = useState("");
+  const [psCode, setPsCode] = useState("");
+  const [sex, setSex] = useState("M");
   const [idNumber, setIdNumber] = useState("");
   const [dor, setDor] = useState("2020-12-01T00:00:00.000+00:00");
   const [image, setImage] = useState("");
@@ -59,6 +57,16 @@ const AddSingleVoter = ({ open, onClose }) => {
       setIdNumber(value);
     }
   };
+
+  useEffect(() => {
+    if (
+      constituencies &&
+      constituencies.length > 0 &&
+      userInfo.psCode === "all"
+    ) {
+      setPsCode(constituencies[0].psCode);
+    }
+  }, [constituencies, userInfo.psCode]);
 
   const handleAgeChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
@@ -148,15 +156,13 @@ const AddSingleVoter = ({ open, onClose }) => {
       setSurname("");
       setOtherNames("");
       setAge("");
-      setPsCode("");
-      setSex("");
+      setSex("M");
       setIdNumber("");
-      setDor("");
       setImage("");
       setImageFile(null);
       setIsSaving(false);
 
-      onClose();
+      // onClose();
 
       handleSnackbarOpen("Voter added successfully", "success");
     } catch (err) {
@@ -182,6 +188,31 @@ const AddSingleVoter = ({ open, onClose }) => {
         </DialogTitle>
         <DialogContent>
           <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <input
+                accept="image/*"
+                style={{ display: "none" }}
+                id="image-input"
+                type="file"
+                onChange={handleFileChange}
+              />
+              <label htmlFor="image-input">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  startIcon={<PhotoCamera />}
+                >
+                  Upload Image
+                </Button>
+              </label>
+            </Grid>
+            <Grid item xs={12}>
+              {image && (
+                <Box display="flex" alignItems="center">
+                  <Avatar sx={{ width: 100, height: 100 }} src={image} />
+                </Box>
+              )}
+            </Grid>
             <Grid item xs={12}>
               <TextField
                 label="Surname"
@@ -214,6 +245,33 @@ const AddSingleVoter = ({ open, onClose }) => {
                 }}
               />
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="ID Number"
+                variant="outlined"
+                fullWidth
+                value={idNumber}
+                onChange={handleIdNumberChange}
+                inputProps={{
+                  maxLength: 10,
+                  pattern: "[0-9]*",
+                  inputMode: "numeric",
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                label="Sex"
+                variant="outlined"
+                fullWidth
+                value={sex}
+                onChange={(e) => setSex(e.target.value)}
+              >
+                <MenuItem value="M">Male</MenuItem>
+                <MenuItem value="F">Female</MenuItem>
+              </TextField>
+            </Grid>
             {userInfo.psCode === "all" && (
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -237,58 +295,6 @@ const AddSingleVoter = ({ open, onClose }) => {
                 </TextField>
               </Grid>
             )}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                label="Sex"
-                variant="outlined"
-                fullWidth
-                value={sex}
-                onChange={(e) => setSex(e.target.value)}
-              >
-                <MenuItem value="M">Male</MenuItem>
-                <MenuItem value="F">Female</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="ID Number"
-                variant="outlined"
-                fullWidth
-                value={idNumber}
-                onChange={handleIdNumberChange}
-                inputProps={{
-                  maxLength: 10,
-                  pattern: "[0-9]*",
-                  inputMode: "numeric",
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <input
-                accept="image/*"
-                style={{ display: "none" }}
-                id="image-input"
-                type="file"
-                onChange={handleFileChange}
-              />
-              <label htmlFor="image-input">
-                <Button
-                  variant="outlined"
-                  component="span"
-                  startIcon={<PhotoCamera />}
-                >
-                  Upload Image
-                </Button>
-              </label>
-            </Grid>
-            <Grid item xs={12}>
-              {image && (
-                <Box display="flex" alignItems="center">
-                  <Avatar sx={{ width: 100, height: 100 }} src={image} />
-                </Box>
-              )}
-            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
