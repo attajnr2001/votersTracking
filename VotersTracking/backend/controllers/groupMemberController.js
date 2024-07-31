@@ -1,9 +1,6 @@
 // controllers/groupMemberController.js
 import asyncHandler from "express-async-handler";
-import XLSX from "xlsx";
 import GroupMember from "../models/GroupMember.js";
-
-
 
 const validateMemberData = (member) => {
   const { name, number, gender, age, occupation } = member;
@@ -15,9 +12,9 @@ const validateMemberData = (member) => {
   return {
     name: name.trim(),
     number: number.toString(),
-    gender: gender ? gender.trim() : '',
+    gender: gender ? gender.trim() : "",
     age: age ? parseInt(age) : null,
-    occupation: occupation ? occupation.trim() : '',
+    occupation: occupation ? occupation.trim() : "",
   };
 };
 
@@ -46,7 +43,6 @@ const importMembersFromText = asyncHandler(async (req, res) => {
   }
 });
 
-
 // Function to get all group members
 const getGroupMembers = async (req, res) => {
   try {
@@ -62,16 +58,31 @@ const getGroupMembers = async (req, res) => {
 };
 
 // Function to create a new group member
-const createGroupMember = async (req, res) => {
-  try {
-    const memberData = validateMemberData(req.body);
-    const newMember = new GroupMember(memberData);
-    const savedMember = await newMember.save();
-    res.status(201).json(savedMember);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+const createGroupMember = asyncHandler(async (req, res) => {
+  const { name, voterId, gender, phone, occupation, age, groupId } = req.body;
+
+  if (!name || !phone || !groupId) {
+    res.status(400);
+    throw new Error("Please provide name, phone, and groupId");
   }
-};
+
+  try {
+    const newMember = await GroupMember.create({
+      name,
+      voterId,
+      gender,
+      number: phone,
+      occupation,
+      age: age ? parseInt(age) : undefined,
+      group: groupId,
+    });
+
+    res.status(201).json(newMember);
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+});
 
 // Function to update a group member
 const updateGroupMember = async (req, res) => {

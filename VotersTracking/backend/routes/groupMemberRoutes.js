@@ -1,7 +1,5 @@
-// routes/groupMemberRoutes.js
 import express from "express";
 import {
-  importMembersFromText,
   getGroupMembers,
   createGroupMember,
   updateGroupMember,
@@ -17,6 +15,5 @@ router
   .route("/:id")
   .put(protect, updateGroupMember)
   .delete(protect, deleteGroupMember);
-router.post("/import", protect, importMembersFromText);
 
 export default router;

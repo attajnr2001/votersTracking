@@ -1,4 +1,3 @@
-// slices/groupMembersApiSlice.js
 import { apiSlice } from "./appSlice";
 
 const GROUP_MEMBERS_URL = "/api/group-members";
@@ -35,14 +34,6 @@ export const groupMembersApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["GroupMembers"],
     }),
-    importGroupMembers: builder.mutation({
-      query: (data) => ({
-        url: `${GROUP_MEMBERS_URL}/import`,
-        method: "POST",
-        body: data,
-      }),
-      invalidatesTags: ["GroupMembers"],
-    }),
   }),
 });
 
@@ -51,5 +42,4 @@ export const {
   useAddGroupMemberMutation,
   useUpdateGroupMemberMutation,
   useDeleteGroupMemberMutation,
-  useImportGroupMembersMutation,
 } = groupMembersApiSlice;

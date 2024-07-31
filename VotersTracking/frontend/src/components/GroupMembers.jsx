@@ -16,6 +16,8 @@ import {
   Alert,
   Snackbar,
   TablePagination,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -23,7 +25,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import {
   useGetGroupMembersQuery,
-  useImportGroupMembersMutation,
+  useAddGroupMemberMutation,
   useUpdateGroupMemberMutation,
 } from "../slices/groupMembersApiSlice";
 import * as XLSX from "xlsx";
@@ -42,10 +44,8 @@ const GroupMembers = ({ groupId, onBack }) => {
   const groupName = groupData && groupData[0]?.group?.name;
   const members = groupData || [];
 
-  const [importGroupMembers, { isLoading: isImporting }] =
-    useImportGroupMembersMutation();
   const [updateGroupMember] = useUpdateGroupMemberMutation();
-
+  const [addGroupMember, { isLoading: isAdding }] = useAddGroupMemberMutation();
   const [openImportDialog, setOpenImportDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isValidFile, setIsValidFile] = useState(false);
@@ -56,15 +56,31 @@ const GroupMembers = ({ groupId, onBack }) => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [genderFilter, setGenderFilter] = useState("All");
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
+  };
+
+  const handleGenderFilterChange = (event) => {
+    setGenderFilter(event.target.value);
   };
 
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 20));
     setPage(0);
   };
+
+  const filteredMembers = members
+    ? members.filter(
+        (member) =>
+          (member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            member.occupation
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) &&
+          (genderFilter === "All" || member.gender === genderFilter)
+      )
+    : [];
 
   const handleOpenEditDialog = (member) => {
     if (member) {
@@ -105,14 +121,6 @@ const GroupMembers = ({ groupId, onBack }) => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredMembers = members
-    ? members.filter(
-        (member) =>
-          member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          member.occupation.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : [];
-
   // Update the member count
   React.useEffect(() => {
     setMemberCount(filteredMembers.length);
@@ -142,17 +150,14 @@ const GroupMembers = ({ groupId, onBack }) => {
 
   const handleImport = async (data) => {
     try {
-      const result = await importGroupMembers({
-        members: data.members,
-        groupId: data.groupId,
-      }).unwrap();
+      await addGroupMember(data).unwrap();
       refetch();
-      setSnackbarMessage(`${result.count} members imported successfully`);
+      setSnackbarMessage(`Member added successfully`);
       setSnackbarOpen(true);
-      handleCloseImportDialog(); // Close the dialog after successful import
+      handleCloseImportDialog();
     } catch (error) {
-      console.error("Failed to import members:", error);
-      setSnackbarMessage("Failed to import members");
+      console.error("Failed to add member:", error);
+      setSnackbarMessage("Failed to add member");
       setSnackbarOpen(true);
     }
   };
@@ -219,7 +224,7 @@ const GroupMembers = ({ groupId, onBack }) => {
             color="primary"
             onClick={handleOpenImportDialog}
           >
-            Import Group Members
+            Add
           </Button>
         </Box>
 
@@ -235,6 +240,16 @@ const GroupMembers = ({ groupId, onBack }) => {
             value={searchTerm}
             onChange={handleSearch}
           />
+          <Select
+            value={genderFilter}
+            onChange={handleGenderFilterChange}
+            size="small"
+            sx={{ minWidth: 120 }}
+          >
+            <MenuItem value="All">All Genders</MenuItem>
+            <MenuItem value="M">Male</MenuItem>
+            <MenuItem value="F">Female</MenuItem>
+          </Select>
           <Button
             variant="outlined"
             color="secondary"
@@ -258,6 +273,7 @@ const GroupMembers = ({ groupId, onBack }) => {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
+              <TableCell>Voter ID</TableCell>
               <TableCell>Number</TableCell>
               <TableCell>Gender</TableCell>
               <TableCell>Age</TableCell>
@@ -271,6 +287,7 @@ const GroupMembers = ({ groupId, onBack }) => {
               .map((member) => (
                 <TableRow key={member._id}>
                   <TableCell>{member.name}</TableCell>
+                  <TableCell>{member.voterId}</TableCell>
                   <TableCell>{member.number}</TableCell>
                   <TableCell>{member.gender}</TableCell>
                   <TableCell>{member.age}</TableCell>
@@ -303,7 +320,7 @@ const GroupMembers = ({ groupId, onBack }) => {
         open={openImportDialog}
         onClose={handleCloseImportDialog}
         onImport={handleImport}
-        isImporting={isImporting}
+        isImporting={isAdding}
         groupId={groupId}
       />
       <EditMemberDialog

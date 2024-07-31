@@ -23,7 +23,7 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
       setEditedMember({
         name: member.name || "",
         number: member.number || "",
-        gender: member.gender || "",
+        gender: member.gender || "M",
         age: member.age || "",
         occupation: member.occupation || "",
       });
@@ -41,7 +41,9 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle color={"secondary"} sx={{fontWeight:"bold"}}>EDIT MEMBER</DialogTitle>
+      <DialogTitle color={"secondary"} sx={{ fontWeight: "bold" }}>
+        EDIT MEMBER
+      </DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <TextField
@@ -69,8 +71,8 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
             fullWidth
             margin="normal"
           >
-            <MenuItem value="male">Male</MenuItem>
-            <MenuItem value="female">Female</MenuItem>
+            <MenuItem value="M">Male</MenuItem>
+            <MenuItem value="F">Female</MenuItem>
           </TextField>
           <TextField
             name="age"
@@ -90,8 +92,10 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
             margin="normal"
           />
           <DialogActions>
-            <Button color="secondary" onClick={onClose}>Cancel</Button>
-            <Button type="submit" color="primary" variant="contained"> 
+            <Button color="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" color="primary" variant="contained">
               Save
             </Button>
           </DialogActions>
