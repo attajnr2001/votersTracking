@@ -8,6 +8,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import Tesseract from "tesseract.js";
 
 const AddBulkVoters = ({ open, onClose }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -24,7 +25,7 @@ const AddBulkVoters = ({ open, onClose }) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  const extractPhotos = async (image) => {
+  const extractVoterData = async (image) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     canvas.width = image.width;
@@ -41,12 +42,8 @@ const AddBulkVoters = ({ open, onClose }) => {
     const leftColumnX = cmToPixels(6);
     const rightColumnX = cmToPixels(15.1);
 
-    console.log(`Image dimensions: ${image.width}x${image.height}`);
-    console.log(`Photo dimensions: ${photoWidth}x${photoHeight}`);
-    console.log(`Row spacing: ${rowSpacing}`);
-    console.log(`Total row height: ${totalRowHeight}`);
-
-    const extractPhoto = (x, y, index) => {
+    const extractPhotoAndData = async (x, y, index) => {
+      // Extract photo
       const photoCanvas = document.createElement("canvas");
       photoCanvas.width = photoWidth;
       photoCanvas.height = photoHeight;
@@ -63,42 +60,74 @@ const AddBulkVoters = ({ open, onClose }) => {
         photoHeight
       );
 
+      // Save photo
       const downloadLink = document.createElement("a");
       downloadLink.href = photoCanvas.toDataURL("image/png");
       downloadLink.download = `voter_${index + 1}_profile.png`;
       downloadLink.click();
 
-      console.log(`Extracted photo ${index + 1} at (${x}, ${y})`);
-      return true;
+      // Extract text data
+      const dataCanvas = document.createElement("canvas");
+      dataCanvas.width = photoWidth * 2; // Adjust as needed to capture all text
+      dataCanvas.height = photoHeight;
+      const dataCtx = dataCanvas.getContext("2d");
+      dataCtx.drawImage(
+        canvas,
+        x - photoWidth,
+        y,
+        photoWidth * 2,
+        photoHeight,
+        0,
+        0,
+        photoWidth * 2,
+        photoHeight
+      );
+
+      // Use Tesseract to extract text
+      const {
+        data: { text },
+      } = await Tesseract.recognize(dataCanvas.toDataURL());
+
+      // Parse the extracted text
+      const voterID = text.match(/Voter ID: (\d+)/)?.[1] || "";
+      const age = text.match(/Age: (\d+)/)?.[1] || "";
+      const sex = text.match(/Sex: (\w+)/)?.[1] || "";
+      const name = text.match(/Name: (.+)/)?.[1] || "";
+
+      console.log(`Extracted data for voter ${index + 1}:`, {
+        voterID,
+        age,
+        sex,
+        name,
+      });
+
+      return { voterID, age, sex, name };
     };
 
-    let photoIndex = 0;
+    let voterIndex = 0;
     let y = 0;
-    const extractedPhotos = [];
+    const extractedData = [];
 
-    while (photoIndex < 12) {
-      if (extractPhoto(leftColumnX, y, photoIndex)) {
-        extractedPhotos.push({ index: photoIndex, column: "left", y });
-        photoIndex++;
-      }
+    while (voterIndex < 12 && y + photoHeight <= image.height) {
+      const leftData = await extractPhotoAndData(leftColumnX, y, voterIndex);
+      extractedData.push({ ...leftData, column: "left", y });
+      voterIndex++;
 
-      if (photoIndex < 12 && extractPhoto(rightColumnX, y, photoIndex)) {
-        extractedPhotos.push({ index: photoIndex, column: "right", y });
-        photoIndex++;
+      if (voterIndex < 12) {
+        const rightData = await extractPhotoAndData(
+          rightColumnX,
+          y,
+          voterIndex
+        );
+        extractedData.push({ ...rightData, column: "right", y });
+        voterIndex++;
       }
 
       y += totalRowHeight;
-
-      if (y + photoHeight > image.height && photoIndex < 12) {
-        console.log(
-          `Warning: Reached end of image before extracting all 12 photos. Extracted ${photoIndex} photos.`
-        );
-        break;
-      }
     }
 
-    console.log("Extracted photos:", extractedPhotos);
-    return extractedPhotos.length;
+    console.log("Extracted voter data:", extractedData);
+    return extractedData;
   };
 
   const handleUpload = async () => {
@@ -106,13 +135,15 @@ const AddBulkVoters = ({ open, onClose }) => {
       setIsLoading(true);
       try {
         const image = await createImageBitmap(selectedFile);
-        const extractedCount = await extractPhotos(image);
+        const extractedData = await extractVoterData(image);
 
         setSnackbar({
           open: true,
-          message: `Successfully extracted ${extractedCount} photos!`,
+          message: `Successfully extracted data for ${extractedData.length} voters!`,
           severity: "success",
         });
+
+        // Here you could send the extractedData to your backend or process it further
       } catch (error) {
         console.error("Error processing image:", error);
         setSnackbar({
@@ -125,7 +156,6 @@ const AddBulkVoters = ({ open, onClose }) => {
       }
     }
   };
-
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
