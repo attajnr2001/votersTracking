@@ -24,89 +24,108 @@ const AddBulkVoters = ({ open, onClose }) => {
     setSelectedFile(e.target.files[0]);
   };
 
-  const extractPhotos = async (image) => {
+  const cmToPixels = (cm, image) => Math.round((cm / 21.9) * image.height);
+
+  const extractPhotos = async (image, coordinates) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     canvas.width = image.width;
     canvas.height = image.height;
     ctx.drawImage(image, 0, 0);
 
-    const cmToPixels = (cm) => Math.round((cm / 21.6) * image.height);
-
-    const photoWidth = cmToPixels(2.4);
-    const photoHeight = cmToPixels(3.41);
-    const rowSpacing = cmToPixels(0.2);
-    const totalRowHeight = photoHeight + rowSpacing;
-
-    const leftColumnX = cmToPixels(6);
-    const rightColumnX = cmToPixels(15.1);
+    const photoWidth = cmToPixels(2.4, image);
+    const photoHeight = cmToPixels(2.8, image);
 
     console.log(`Image dimensions: ${image.width}x${image.height}`);
     console.log(`Photo dimensions: ${photoWidth}x${photoHeight}`);
-    console.log(`Row spacing: ${rowSpacing}`);
-    console.log(`Total row height: ${totalRowHeight}`);
 
     const extractPhoto = (x, y, index) => {
+      console.log(`Attempting to extract photo ${index + 1} at (${x}, ${y})`);
+
+      if (x + photoWidth > image.width || y + photoHeight > image.height) {
+        console.error(`Photo ${index + 1} is out of bounds`);
+        return false;
+      }
+
       const photoCanvas = document.createElement("canvas");
       photoCanvas.width = photoWidth;
       photoCanvas.height = photoHeight;
       const photoCtx = photoCanvas.getContext("2d");
-      photoCtx.drawImage(
-        canvas,
-        x,
-        y,
-        photoWidth,
-        photoHeight,
-        0,
-        0,
-        photoWidth,
-        photoHeight
-      );
 
-      const downloadLink = document.createElement("a");
-      downloadLink.href = photoCanvas.toDataURL("image/png");
-      downloadLink.download = `voter_${index + 1}_profile.png`;
-      downloadLink.click();
+      try {
+        photoCtx.drawImage(
+          canvas,
+          x,
+          y,
+          photoWidth,
+          photoHeight,
+          0,
+          0,
+          photoWidth,
+          photoHeight
+        );
 
-      console.log(`Extracted photo ${index + 1} at (${x}, ${y})`);
-      return true;
+        const downloadLink = document.createElement("a");
+        downloadLink.href = photoCanvas.toDataURL("image/png");
+        downloadLink.download = `voter_${index + 1}_profile.png`;
+        downloadLink.click();
+
+        console.log(`Successfully extracted and downloaded photo ${index + 1}`);
+        return true;
+      } catch (error) {
+        console.error(`Error extracting photo ${index + 1}:`, error);
+        return false;
+      }
     };
 
-    let photoIndex = 0;
-    let y = 0;
-    const extractedPhotos = [];
-
-    while (photoIndex < 12) {
-      if (extractPhoto(leftColumnX, y, photoIndex)) {
-        extractedPhotos.push({ index: photoIndex, column: "left", y });
-        photoIndex++;
-      }
-
-      if (photoIndex < 12 && extractPhoto(rightColumnX, y, photoIndex)) {
-        extractedPhotos.push({ index: photoIndex, column: "right", y });
-        photoIndex++;
-      }
-
-      y += totalRowHeight;
-
-      if (y + photoHeight > image.height && photoIndex < 12) {
-        console.log(
-          `Warning: Reached end of image before extracting all 12 photos. Extracted ${photoIndex} photos.`
-        );
-        break;
-      }
-    }
+    const extractedPhotos = coordinates
+      .map((coord, index) => {
+        if (extractPhoto(coord.x, coord.y, index)) {
+          return { index, x: coord.x, y: coord.y };
+        }
+        return null;
+      })
+      .filter((photo) => photo !== null);
 
     console.log("Extracted photos:", extractedPhotos);
+    console.log("Extracted photo count:", extractedPhotos.length);
+    console.log(
+      "Failed extractions:",
+      coordinates.length - extractedPhotos.length
+    );
     return extractedPhotos.length;
   };
 
-  const handleUpload = async () => {
+  const extractPreviousPhotos = async (image) => {
+    const coordinates = [
+      { x: cmToPixels(6, image), y: cmToPixels(0.5, image) },
+      { x: cmToPixels(15.1, image), y: cmToPixels(0.5, image) },
+      { x: cmToPixels(6, image), y: cmToPixels(4.11, image) },
+      { x: cmToPixels(15.1, image), y: cmToPixels(4.11, image) },
+      { x: cmToPixels(6, image), y: cmToPixels(7.72, image) },
+      { x: cmToPixels(15.1, image), y: cmToPixels(7.72, image) },
+      { x: cmToPixels(6, image), y: cmToPixels(11.33, image) },
+      { x: cmToPixels(15.1, image), y: cmToPixels(11.33, image) },
+      { x: cmToPixels(6, image), y: cmToPixels(14.94, image) },
+      { x: cmToPixels(15.1, image), y: cmToPixels(14.94, image) },
+    ];
+    return extractPhotos(image, coordinates);
+  };
+
+  const extractLastTwoPhotos = async (image) => {
+    const coordinates = [
+      { x: cmToPixels(6.1, image), y: cmToPixels(18.55, image) },
+      { x: cmToPixels(15.2, image), y: cmToPixels(18.55, image) },
+    ];
+    return extractPhotos(image, coordinates);
+  };
+
+  const handleUpload = async (extractionFunction) => {
     if (selectedFile) {
       setIsLoading(true);
       try {
         const image = await createImageBitmap(selectedFile);
-        const extractedCount = await extractPhotos(image);
+        const extractedCount = await extractionFunction(image);
 
         setSnackbar({
           open: true,
@@ -151,12 +170,20 @@ const AddBulkVoters = ({ open, onClose }) => {
             Cancel
           </Button>
           <Button
-            onClick={handleUpload}
+            onClick={() => handleUpload(extractPreviousPhotos)}
             color="primary"
             variant="contained"
             disabled={!selectedFile || isLoading}
           >
-            {isLoading ? "Processing..." : "Extract Photos"}
+            {isLoading ? "Processing..." : "Extract Previous 10"}
+          </Button>
+          <Button
+            onClick={() => handleUpload(extractLastTwoPhotos)}
+            color="primary"
+            variant="contained"
+            disabled={!selectedFile || isLoading}
+          >
+            {isLoading ? "Processing..." : "Extract Last 2"}
           </Button>
         </DialogActions>
       </Dialog>

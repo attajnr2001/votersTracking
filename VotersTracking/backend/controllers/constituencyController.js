@@ -1,13 +1,14 @@
 import asyncHandler from "express-async-handler";
 import Constituency from "../models/Constituency.js";
 import User from "../models/User.js";
-import Voter from "../models/Voter.js"; // Add this import
+import Voter from "../models/Voter.js"; // Add this import  
 
 // @desc    Get all constituencies
 // @route   GET /api/constituencies
 // @access  Public
+
 const getConstituencies = asyncHandler(async (req, res) => {
-  const constituencies = await Constituency.find({});
+  const constituencies = await Constituency.find({}); 
   const constituenciesWithDetails = await Promise.all(
     constituencies.map(async (constituency) => {
       const coordinator = await User.findOne({ psCode: constituency.psCode });
@@ -71,7 +72,7 @@ const deleteConstituency = asyncHandler(async (req, res) => {
   if (constituency) {
     await constituency.remove();
     res.json({ message: "Constituency removed" });
-  } else {
+  } else { 
     res.status(404);
     throw new Error("Constituency not found");
   }

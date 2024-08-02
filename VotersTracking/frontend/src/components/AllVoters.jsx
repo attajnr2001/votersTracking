@@ -37,6 +37,12 @@ const AllVoters = () => {
   const [maxAge, setMaxAge] = useState(100);
   const { userInfo } = useSelector((state) => state.auth);
   const [filteredCount, setFilteredCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+    console.log(searchTerm);
+  };
 
   const handleMinAgeChange = (event) => {
     const newMinAge = Math.max(
@@ -79,7 +85,6 @@ const AllVoters = () => {
           "https://worldtimeapi.org/api/timezone/Africa/Accra"
         );
         setCurrentDateTime(new Date(response.data.datetime));
-        console.log(voters);
       } catch (error) {
         console.error("Error fetching current time:", error);
         setCurrentDateTime(new Date());
@@ -112,6 +117,17 @@ const AllVoters = () => {
           .slice()
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           .filter((row) => {
+            // Search filter
+            if (searchTerm && searchTerm !== "") {
+              const searchLower = searchTerm.toLowerCase();
+              if (
+                !row.surname.toLowerCase().includes(searchLower) &&
+                !row.otherNames.toLowerCase().includes(searchLower) &&
+                !row.idNumber.toLowerCase().includes(searchLower)
+              ) {
+                return false;
+              }
+            }
             // Constituency filter
             if (constituency && constituency !== "") {
               if (row.psCode !== constituency) {
@@ -135,7 +151,7 @@ const AllVoters = () => {
             return true;
           })
       : [];
-  }, [voters, constituency, filter, minAge, maxAge]);
+  }, [voters, constituency, filter, minAge, maxAge, searchTerm]);
 
   // Update the filtered count
   useEffect(() => {
@@ -232,6 +248,17 @@ const AllVoters = () => {
           </Box>
         </Box>
 
+        <Box my={2}>
+          <TextField
+            label="Search"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            variant="outlined"
+            fullWidth
+            placeholder="Search by surname, other names, or ID number"
+          />
+        </Box>
+
         <Box display="flex" gap={2} marginBottom={2}>
           {userInfo.psCode === "all" && (
             <TextField
@@ -293,6 +320,7 @@ const AllVoters = () => {
         {constituency ? ` in ${constituency}` : ""}
         {filter ? ` (${filter})` : ""}
         {` [${minAge} and ${maxAge}]`}
+        {searchTerm ? ` matching "${searchTerm}"` : ""}
       </Typography>
 
       <TableContainer>
