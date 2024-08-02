@@ -34,7 +34,7 @@ const AllVoters = () => {
   const [constituency, setConstituency] = useState("");
   const [currentDateTime, setCurrentDateTime] = useState(null);
   const [minAge, setMinAge] = useState(18);
-  const [maxAge, setMaxAge] = useState(100);
+  const [maxAge, setMaxAge] = useState(120);
   const { userInfo } = useSelector((state) => state.auth);
   const [filteredCount, setFilteredCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
