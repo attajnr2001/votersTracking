@@ -19,6 +19,7 @@ import PrivateRoute from "./helpers/PrivateRoute";
 import store from "./store";
 import Users from "./components/Users";
 import Groups from "./components/Groups";
+import AllMembers from "./components/AllMembers";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -34,6 +35,7 @@ const App = () => {
             <Route path="history" element={<History />} />
             <Route path="gallery" element={<Gallery />} />
             <Route path="groups" element={<Groups />} /> 
+            <Route path="all-members" element={<AllMembers />} />
           </Route>
         </Route>
       </Route>

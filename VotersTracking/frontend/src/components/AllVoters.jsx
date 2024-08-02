@@ -16,16 +16,24 @@ import {
   Typography,
   CircularProgress,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   useGetVotersQuery,
   useGetConstituenciesQuery,
+  useUpdateVoterMutation,
 } from "../slices/votersApiSlice";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
+import EditIcon from "@mui/icons-material/Edit";
 
 const AllVoters = () => {
   const [page, setPage] = useState(0);
@@ -38,6 +46,44 @@ const AllVoters = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const [filteredCount, setFilteredCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [editingVoter, setEditingVoter] = useState(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  const [updateVoter] = useUpdateVoterMutation();
+
+  const handleOpenEditDialog = (voter) => {
+    setEditingVoter(voter);
+    setOpenEditDialog(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEditingVoter(null);
+    setOpenEditDialog(false);
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      await updateVoter(editingVoter).unwrap();
+      handleCloseEditDialog();
+      setSnackbarMessage("Voter updated successfully");
+      setSnackbarOpen(true);
+      refetch(); // Use the refetch function here
+    } catch (error) {
+      console.error("Failed to update voter:", error);
+      setSnackbarMessage("Failed to update voter");
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -70,6 +116,7 @@ const AllVoters = () => {
     data: voters,
     error: votersError,
     isLoading: isLoadingVoters,
+    refetch,
   } = useGetVotersQuery(userInfo.psCode);
 
   const {
@@ -335,6 +382,7 @@ const AllVoters = () => {
               <TableCell sx={{ color: "white" }}>Id Number</TableCell>
               <TableCell sx={{ color: "white" }}>Age</TableCell>
               <TableCell sx={{ color: "white" }}>Date of Reg.</TableCell>
+              <TableCell sx={{ color: "white" }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -361,6 +409,15 @@ const AllVoters = () => {
                     <TableCell>
                       {new Date(row.dor).toLocaleDateString()}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        startIcon={<EditIcon />}
+                        variant="contained"
+                        onClick={() => handleOpenEditDialog(row)}
+                      >
+                        Edit
+                      </Button>
+                    </TableCell>
                   </motion.tr>
                 ))}
             </AnimatePresence>
@@ -376,6 +433,102 @@ const AllVoters = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
         rowsPerPageOptions={[5, 10, 25]}
       />
+
+      <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
+        <DialogTitle>Edit Voter</DialogTitle>
+        <DialogContent>
+          {editingVoter && (
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
+            >
+              <TextField
+                label="Surname"
+                value={editingVoter.surname}
+                onChange={(e) =>
+                  setEditingVoter({ ...editingVoter, surname: e.target.value })
+                }
+                fullWidth
+              />
+              <TextField
+                label="Other Names"
+                value={editingVoter.otherNames}
+                onChange={(e) =>
+                  setEditingVoter({
+                    ...editingVoter,
+                    otherNames: e.target.value,
+                  })
+                }
+                fullWidth
+              />
+              <TextField
+                label="Age"
+                type="number"
+                value={editingVoter.age}
+                onChange={(e) =>
+                  setEditingVoter({
+                    ...editingVoter,
+                    age: parseInt(e.target.value),
+                  })
+                }
+                fullWidth
+              />
+              <TextField
+                select
+                label="Sex"
+                value={editingVoter.sex}
+                onChange={(e) =>
+                  setEditingVoter({ ...editingVoter, sex: e.target.value })
+                }
+                fullWidth
+              >
+                <MenuItem value="M">Male</MenuItem>
+                <MenuItem value="F">Female</MenuItem>
+              </TextField>
+              <TextField
+                label="PS Code"
+                value={editingVoter.psCode}
+                onChange={(e) =>
+                  setEditingVoter({ ...editingVoter, psCode: e.target.value })
+                }
+                fullWidth
+              />
+              <TextField
+                label="ID Number"
+                value={editingVoter.idNumber}
+                onChange={(e) =>
+                  setEditingVoter({ ...editingVoter, idNumber: e.target.value })
+                }
+                fullWidth
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEditDialog}>Cancel</Button>
+          <Button
+            onClick={handleEditSubmit}
+            variant="contained"
+            color="primary"
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 };

@@ -19,6 +19,11 @@ const groupMemberSchema = mongoose.Schema(
     occupation: {
       type: String,
     },
+    voterId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     group: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Group",

@@ -11,6 +11,13 @@ export const groupMembersApiSlice = apiSlice.injectEndpoints({
       }),
       providesTags: ["GroupMembers"],
     }),
+    getAllMembers: builder.query({
+      query: () => ({
+        url: `${GROUP_MEMBERS_URL}/all`,
+        method: "GET",
+      }),
+      providesTags: ["GroupMembers"],
+    }),
     addGroupMember: builder.mutation({
       query: (data) => ({
         url: GROUP_MEMBERS_URL,
@@ -42,4 +49,5 @@ export const {
   useAddGroupMemberMutation,
   useUpdateGroupMemberMutation,
   useDeleteGroupMemberMutation,
+  useGetAllMembersQuery,
 } = groupMembersApiSlice;

@@ -167,6 +167,33 @@ const getAllConstituenciesData = asyncHandler(async (req, res) => {
 
   res.json(data);
 });
+const updateVoter = asyncHandler(async (req, res) => {
+  const voter = await Voter.findById(req.params.id);
+
+  if (voter) {
+    voter.surname = req.body.surname || voter.surname;
+    voter.otherNames = req.body.otherNames || voter.otherNames;
+    voter.age = req.body.age || voter.age;
+    voter.sex = req.body.sex || voter.sex;
+    voter.psCode = req.body.psCode || voter.psCode;
+    voter.idNumber = req.body.idNumber || voter.idNumber;
+
+    const updatedVoter = await voter.save();
+
+    res.json({
+      _id: updatedVoter._id,
+      surname: updatedVoter.surname,
+      otherNames: updatedVoter.otherNames,
+      age: updatedVoter.age,
+      sex: updatedVoter.sex,
+      psCode: updatedVoter.psCode,
+      idNumber: updatedVoter.idNumber,
+    });
+  } else {
+    res.status(404);
+    throw new Error("Voter not found");
+  }
+});
 
 export {
   addVoter,
@@ -176,4 +203,5 @@ export {
   getVotersAbove40,
   getConstituencyData,
   getAllConstituenciesData,
+  updateVoter,
 };

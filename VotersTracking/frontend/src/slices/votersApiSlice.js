@@ -1,4 +1,3 @@
-
 import { apiSlice } from "./appSlice";
 
 const VOTERS_URL = "/api/voters";
@@ -26,6 +25,14 @@ export const votersApiSlice = apiSlice.injectEndpoints({
         url: CONSTITUENCIES_URL,
         method: "GET",
       }),
+    }),
+    updateVoter: builder.mutation({
+      query: (data) => ({
+        url: `${VOTERS_URL}/${data._id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Voter"],
     }),
 
     getTotalVoters: builder.query({
@@ -78,4 +85,5 @@ export const {
   useGetVotersAbove40Query,
   useGetConstituencyDataQuery,
   useGetAllConstituenciesDataQuery,
+  useUpdateVoterMutation,
 } = votersApiSlice;

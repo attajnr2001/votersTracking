@@ -10,82 +10,59 @@ import {
   TableHead,
   TableRow,
   Paper,
-  IconButton,
   Box,
   CircularProgress,
-  Alert,
-  Snackbar,
   TablePagination,
   Select,
   MenuItem,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 import {
-  useGetGroupMembersQuery,
-  useAddGroupMemberMutation,
+  useGetAllMembersQuery,
   useUpdateGroupMemberMutation,
   useDeleteGroupMemberMutation,
 } from "../slices/groupMembersApiSlice";
-import * as XLSX from "xlsx";
 import EditMemberDialog from "../mod/EditMemberDialog";
-import ImportMembersDialog from "../mod/ImportMembersDialog";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
-const GroupMembers = ({ groupId, onBack }) => {
+const AllMembers = () => {
   const {
-    data: groupData,
+    data: members,
     isLoading,
     isError,
     refetch,
-  } = useGetGroupMembersQuery(groupId);
-  const [memberCount, setMemberCount] = useState(0);
-  const groupName = groupData && groupData[0]?.group?.name;
-  const members = groupData || [];
-
+  } = useGetAllMembersQuery();
   const [updateGroupMember] = useUpdateGroupMemberMutation();
-  const [addGroupMember, { isLoading: isAdding }] = useAddGroupMemberMutation();
   const [deleteGroupMember] = useDeleteGroupMemberMutation();
-  const [openImportDialog, setOpenImportDialog] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [isValidFile, setIsValidFile] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const [genderFilter, setGenderFilter] = useState("All");
-
-  const handleDelete = async (memberId) => {
-    if (window.confirm("Are you sure you want to delete this member?")) {
-      try {
-        await deleteGroupMember(memberId).unwrap();
-        refetch();
-        setSnackbarMessage("Member deleted successfully");
-        setSnackbarOpen(true);
-      } catch (error) {
-        console.error("Failed to delete member:", error);
-        setSnackbarMessage("Failed to delete member");
-        setSnackbarOpen(true);
-      }
-    }
-  };
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleGenderFilterChange = (event) => {
-    setGenderFilter(event.target.value);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 20));
-    setPage(0);
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleGenderFilterChange = (event) => {
+    setGenderFilter(event.target.value);
   };
 
   const filteredMembers = members
@@ -99,11 +76,43 @@ const GroupMembers = ({ groupId, onBack }) => {
       )
     : [];
 
+  const handleExportExcel = () => {
+    const workBook = XLSX.utils.book_new();
+    const workSheet = XLSX.utils.json_to_sheet(
+      filteredMembers.map((member) => ({
+        Name: member.name,
+        Group: member.group.name,
+        Number: member.number,
+        Gender: member.gender,
+        Age: member.age,
+        Occupation: member.occupation,
+      }))
+    );
+
+    XLSX.utils.book_append_sheet(workBook, workSheet, "All Members");
+    XLSX.writeFile(workBook, "all_members.xlsx");
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("All Members", 20, 10);
+    doc.autoTable({
+      head: [["Name", "Group", "Number", "Gender", "Age", "Occupation"]],
+      body: filteredMembers.map((member) => [
+        member.name,
+        member.group.name,
+        member.number,
+        member.gender,
+        member.age,
+        member.occupation,
+      ]),
+    });
+    doc.save("all_members.pdf");
+  };
+
   const handleOpenEditDialog = (member) => {
-    if (member) {
-      setEditingMember(member);
-      setEditDialogOpen(true);
-    }
+    setEditingMember(member);
+    setEditDialogOpen(true);
   };
 
   const handleCloseEditDialog = () => {
@@ -128,125 +137,42 @@ const GroupMembers = ({ groupId, onBack }) => {
     }
   };
 
+  const handleDelete = async (memberId) => {
+    if (window.confirm("Are you sure you want to delete this member?")) {
+      try {
+        await deleteGroupMember(memberId).unwrap();
+        refetch();
+        setSnackbarMessage("Member deleted successfully");
+        setSnackbarOpen(true);
+      } catch (error) {
+        console.error("Failed to delete member:", error);
+        setSnackbarMessage("Failed to delete member");
+        setSnackbarOpen(true);
+      }
+    }
+  };
+
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
     setSnackbarOpen(false);
   };
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-  };
 
-  // Update the member count
-  React.useEffect(() => {
-    setMemberCount(filteredMembers.length);
-  }, [filteredMembers]);
-
-  if (isLoading) {
-    return <CircularProgress />;
-  }
-
-  if (isError) {
+  if (isLoading) return <CircularProgress />;
+  if (isError)
     return <Typography>Error loading members. Please try again.</Typography>;
-  }
-
-  const handleOpenImportDialog = () => {
-    setOpenImportDialog(true);
-  };
-
-  const handleCloseImportDialog = () => {
-    setOpenImportDialog(false);
-  };
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
-  };
-
-  // In the GroupMembers component
-
-  const handleImport = async (data) => {
-    try {
-      await addGroupMember(data).unwrap();
-      refetch();
-      setSnackbarMessage(`Member added successfully`);
-      setSnackbarOpen(true);
-      handleCloseImportDialog();
-    } catch (error) {
-      console.error("Failed to add member:", error);
-      setSnackbarMessage("Failed to add member");
-      setSnackbarOpen(true);
-    }
-  };
-
-  const handleExportExcel = () => {
-    const workBook = XLSX.utils.book_new();
-    const workSheet = XLSX.utils.json_to_sheet(
-      filteredMembers.map((member) => ({
-        Name: member.name,
-        Number: member.number,
-        Gender: member.gender,
-        Age: member.age,
-        Occupation: member.occupation,
-      }))
-    );
-
-    XLSX.utils.book_append_sheet(workBook, workSheet, "Group Members List");
-    XLSX.writeFile(workBook, "group_members.xlsx");
-  };
-
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Group Members", 20, 10);
-    doc.autoTable({
-      head: [["Name", "Number", "Gender", "Age", "Occupation"]],
-      body: filteredMembers.map((member) => [
-        member.name,
-        member.number,
-        member.gender,
-        member.age,
-        member.occupation,
-      ]),
-    });
-    doc.save("group_members.pdf");
-  };
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <Typography
-          variant="h5"
-          color="secondary"
-          fontWeight="bold"
-          gutterBottom
-        >
-          {groupName ? `${groupName}` : "GROUP MEMBERS"}
-        </Typography>
-        <IconButton color="secondary" onClick={onBack}>
-          <ArrowBackIosIcon />
-        </IconButton>
-      </Box>
+      <Typography variant="h5" color="secondary" fontWeight="bold" gutterBottom>
+        ALL MEMBERS
+      </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Box>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenImportDialog}
-          >
-            Add
-          </Button>
-        </Box>
-
-        <Typography variant="body1" color="error" mb={2} fontWeight={"bold"}>
-          {memberCount} member{memberCount !== 1 ? "s" : ""}
+        <Typography variant="body1" color="error" fontWeight="bold">
+          {filteredMembers.length} member
+          {filteredMembers.length !== 1 ? "s" : ""}
         </Typography>
 
         <Box sx={{ display: "flex", gap: 1 }}>
@@ -285,16 +211,17 @@ const GroupMembers = ({ groupId, onBack }) => {
           </Button>
         </Box>
       </Box>
+
       <TableContainer component={Paper}>
-        <Table aria-label="a dense table" size="small">
+        <Table aria-label="all members table" size="small">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
+              <TableCell>Group</TableCell>
               <TableCell>Voter ID</TableCell>
               <TableCell>Number</TableCell>
               <TableCell>Gender</TableCell>
               <TableCell>Age</TableCell>
-              {/* <TableCell>Occupation</TableCell> */}
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -304,11 +231,11 @@ const GroupMembers = ({ groupId, onBack }) => {
               .map((member) => (
                 <TableRow key={member._id}>
                   <TableCell>{member.name}</TableCell>
+                  <TableCell>{member.group.name}</TableCell>
                   <TableCell>{member.voterId}</TableCell>
                   <TableCell>{member.number}</TableCell>
                   <TableCell>{member.gender}</TableCell>
                   <TableCell>{member.age}</TableCell>
-                  {/* <TableCell>{member.occupation}</TableCell> */}
                   <TableCell>
                     <Button
                       color="primary"
@@ -341,13 +268,6 @@ const GroupMembers = ({ groupId, onBack }) => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <ImportMembersDialog
-        open={openImportDialog}
-        onClose={handleCloseImportDialog}
-        onImport={handleImport}
-        isImporting={isAdding}
-        groupId={groupId}
-      />
       <EditMemberDialog
         open={editDialogOpen}
         onClose={handleCloseEditDialog}
@@ -372,4 +292,4 @@ const GroupMembers = ({ groupId, onBack }) => {
   );
 };
 
-export default GroupMembers;
+export default AllMembers;

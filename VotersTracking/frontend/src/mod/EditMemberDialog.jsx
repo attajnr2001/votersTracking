@@ -16,6 +16,7 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
     gender: "",
     age: "",
     occupation: "",
+    voterId: "",
   });
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
         gender: member.gender || "M",
         age: member.age || "",
         occupation: member.occupation || "",
+        voterId: member.voterId || "",
       });
     }
   }, [member]);
@@ -50,6 +52,14 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
             name="name"
             label="Name"
             value={editedMember.name}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            name="voterId"
+            label="Voter ID"
+            value={editedMember.voterId}
             onChange={handleChange}
             fullWidth
             margin="normal"

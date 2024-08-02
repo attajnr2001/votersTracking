@@ -7,8 +7,9 @@ import {
   getVotersAbove40,
   getConstituencyData,
   getAllConstituenciesData,
+  updateVoter,
 } from "../controllers/voterController.js";
-import { protect } from "../middlewares/authMiddleware.js"; 
+import { protect } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -20,5 +21,6 @@ router.route("/count/below40").get(getVotersBelow40);
 router.route("/count/above40").get(getVotersAbove40);
 router.route("/constituency/:psCode").get(getConstituencyData);
 router.route("/all-constituencies-data").get(getAllConstituenciesData);
+router.route("/:id").put(protect, updateVoter);
 
 export default router;

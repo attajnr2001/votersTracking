@@ -2,6 +2,15 @@
 import asyncHandler from "express-async-handler";
 import GroupMember from "../models/GroupMember.js";
 
+const getAllMembers = async (req, res) => {
+  try {
+    const allMembers = await GroupMember.find().populate("group", "name");
+    res.status(200).json(allMembers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const validateMemberData = (member) => {
   const { name, number, gender, age, occupation } = member;
 
@@ -57,49 +66,56 @@ const getGroupMembers = async (req, res) => {
   }
 };
 
-// Function to create a new group member
+// create group member
 const createGroupMember = asyncHandler(async (req, res) => {
-  const { name, voterId, gender, phone, occupation, age, groupId } = req.body;
+  const { name, number, gender, age, occupation, group } = req.body;
 
-  if (!name || !phone || !groupId) {
-    res.status(400);
-    throw new Error("Please provide name, phone, and groupId");
+  let { voterId } = req.body;
+
+  if (!voterId) {
+    voterId = await generateVoterId();
   }
 
-  try {
-    const newMember = await GroupMember.create({
-      name,
-      voterId,
-      gender,
-      number: phone,
-      occupation,
-      age: age ? parseInt(age) : undefined,
-      group: groupId,
-    });
+  const groupMember = await GroupMember.create({
+    name,
+    number,
+    gender,
+    age,
+    occupation,
+    group,
+    voterId,
+  });
 
-    res.status(201).json(newMember);
-  } catch (error) {
+  if (groupMember) {
+    res.status(201).json(groupMember);
+  } else {
     res.status(400);
-    throw new Error(error.message);
+    throw new Error("Invalid group member data");
   }
 });
 
 // Function to update a group member
-const updateGroupMember = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = validateMemberData(req.body);
-    const updatedMember = await GroupMember.findByIdAndUpdate(id, updateData, {
-      new: true,
-    });
-    if (!updatedMember) {
-      return res.status(404).json({ message: "Member not found" });
-    }
-    res.status(200).json(updatedMember);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+const updateGroupMember = asyncHandler(async (req, res) => {
+  const { name, number, gender, age, occupation, voterId } = req.body;
+
+  const groupMember = await GroupMember.findById(req.params.id);
+
+  if (groupMember) {
+    groupMember.name = name || groupMember.name;
+    groupMember.number = number || groupMember.number;
+    groupMember.gender = gender || groupMember.gender;
+    groupMember.age = age || groupMember.age;
+    groupMember.occupation = occupation || groupMember.occupation;
+    groupMember.voterId =
+      voterId || groupMember.voterId || (await generateVoterId());
+
+    const updatedGroupMember = await groupMember.save();
+    res.json(updatedGroupMember);
+  } else {
+    res.status(404);
+    throw new Error("Group member not found");
   }
-};
+});
 
 // Function to delete a group member
 const deleteGroupMember = async (req, res) => {
@@ -115,10 +131,28 @@ const deleteGroupMember = async (req, res) => {
   }
 };
 
+const generateVoterId = async () => {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < 8; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  // Check if this voterId already exists
+  const existingMember = await GroupMember.findOne({ voterId: result });
+  if (existingMember) {
+    // If it exists, generate a new one recursively
+    return generateVoterId();
+  }
+
+  return result;
+};
+
 export {
   importMembersFromText,
   getGroupMembers,
   createGroupMember,
   updateGroupMember,
   deleteGroupMember,
+  getAllMembers,
 };

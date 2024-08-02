@@ -31,6 +31,7 @@ import GroupMembers from "./GroupMembers";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { useNavigate } from "react-router-dom";
 
 const Groups = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -53,6 +54,11 @@ const Groups = () => {
   });
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  const handleSeeAllMembers = () => {
+    navigate("/dashboard/all-members");
+  };
 
   // Snackbar state
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -224,15 +230,25 @@ const Groups = () => {
                 >
                   GROUPS
                 </Typography>
-                {isSuper && (
+                <Box>
+                  {isSuper && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleOpenDialog()}
+                      sx={{ mr: 2 }}
+                    >
+                      Add Group
+                    </Button>
+                  )}
                   <Button
                     variant="contained"
-                    color="primary"
-                    onClick={() => handleOpenDialog()}
+                    color="secondary"
+                    onClick={handleSeeAllMembers}
                   >
-                    Add Group
+                    See All Members
                   </Button>
-                )}
+                </Box>
               </Box>
 
               <Box
