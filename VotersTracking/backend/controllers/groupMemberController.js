@@ -106,8 +106,9 @@ const updateGroupMember = asyncHandler(async (req, res) => {
     groupMember.gender = gender || groupMember.gender;
     groupMember.age = age || groupMember.age;
     groupMember.occupation = occupation || groupMember.occupation;
-    groupMember.voterId =
-      voterId || groupMember.voterId || (await generateVoterId());
+    groupMember.voterId = voterId || groupMember.voterId;
+    // Remove or comment out this line:
+    // groupMember.voterId = voterId || groupMember.voterId || (await generateVoterId());
 
     const updatedGroupMember = await groupMember.save();
     res.json(updatedGroupMember);
@@ -116,7 +117,6 @@ const updateGroupMember = asyncHandler(async (req, res) => {
     throw new Error("Group member not found");
   }
 });
-
 // Function to delete a group member
 const deleteGroupMember = async (req, res) => {
   try {
@@ -132,7 +132,7 @@ const deleteGroupMember = async (req, res) => {
 };
 
 const generateVoterId = async () => {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const characters = "123";
   let result = "";
   for (let i = 0; i < 8; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -141,7 +141,6 @@ const generateVoterId = async () => {
   // Check if this voterId already exists
   const existingMember = await GroupMember.findOne({ voterId: result });
   if (existingMember) {
-    // If it exists, generate a new one recursively
     return generateVoterId();
   }
 

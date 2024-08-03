@@ -13,13 +13,15 @@ import { Provider } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard"; 
+import Dashboard from "./pages/Dashboard";
 import RootLayout from "./layouts/RootLayout";
 import PrivateRoute from "./helpers/PrivateRoute";
 import store from "./store";
 import Users from "./components/Users";
 import Groups from "./components/Groups";
 import AllMembers from "./components/AllMembers";
+import GiftRoom from "./components/GiftRoom";
+import EditGiftRoom from "./components/EditGiftRoom";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -34,8 +36,10 @@ const App = () => {
             <Route path="electoral-areas" element={<ElectoralAreas />} />
             <Route path="history" element={<History />} />
             <Route path="gallery" element={<Gallery />} />
-            <Route path="groups" element={<Groups />} /> 
+            <Route path="groups" element={<Groups />} />
             <Route path="all-members" element={<AllMembers />} />
+            <Route path="gift-room" element={<GiftRoom />} />
+            <Route path="edit-gift/:giftId" element={<EditGiftRoom />} />
           </Route>
         </Route>
       </Route>

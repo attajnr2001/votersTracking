@@ -63,7 +63,7 @@ function Navbar(props) {
 
   const [logoutApiCall] = useLogoutMutation();
 
-  const navItems = ["ADD VOTERS", "MEDIA", "DATA"];
+  const navItems = ["ADD VOTERS", "MEDIA", "DATA", "GIFT ROOM"];
   if (userInfo.psCode === "all") {
     navItems.push("USERS");
   }
@@ -224,7 +224,13 @@ function Navbar(props) {
                   key={item}
                   sx={{ color: "#fff" }}
                   component={Link}
-                  to={item === "USERS" ? "/dashboard/users" : "#"}
+                  to={
+                    item === "USERS"
+                      ? "/dashboard/users"
+                      : item === "GIFT ROOM"
+                      ? "/dashboard/gift-room"
+                      : "#"
+                  }
                   onClick={
                     item === "ADD VOTERS"
                       ? handleAddVotersClick
@@ -232,6 +238,8 @@ function Navbar(props) {
                       ? handleMediaClick
                       : item === "DATA"
                       ? handleDataClick
+                      : item === "GIFT ROOM"
+                      ? () => navigate("/dashboard/gift-room")
                       : undefined
                   }
                 >

@@ -16,6 +16,7 @@ import {
   Select,
   MenuItem,
   Snackbar,
+  TableSortLabel,
   Alert,
 } from "@mui/material";
 import {
@@ -47,6 +48,14 @@ const AllMembers = () => {
   const [editingMember, setEditingMember] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [orderBy, setOrderBy] = useState("name");
+  const [order, setOrder] = useState("asc");
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -137,6 +146,22 @@ const AllMembers = () => {
     }
   };
 
+  const filteredAndSortedMembers = React.useMemo(() => {
+    return filteredMembers.sort((a, b) => {
+      if (orderBy === "name") {
+        return order === "asc"
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      }
+      if (orderBy === "group") {
+        return order === "asc"
+          ? a.group.name.localeCompare(b.group.name)
+          : b.group.name.localeCompare(a.group.name);
+      }
+      return 0;
+    });
+  }, [filteredMembers, order, orderBy]);
+
   const handleDelete = async (memberId) => {
     if (window.confirm("Are you sure you want to delete this member?")) {
       try {
@@ -216,8 +241,24 @@ const AllMembers = () => {
         <Table aria-label="all members table" size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Group</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "name"}
+                  direction={orderBy === "name" ? order : "asc"}
+                  onClick={() => handleRequestSort("name")}
+                >
+                  Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === "group"}
+                  direction={orderBy === "group" ? order : "asc"}
+                  onClick={() => handleRequestSort("group")}
+                >
+                  Group
+                </TableSortLabel>
+              </TableCell>{" "}
               <TableCell>Voter ID</TableCell>
               <TableCell>Number</TableCell>
               <TableCell>Gender</TableCell>
@@ -226,7 +267,7 @@ const AllMembers = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredMembers
+            {filteredAndSortedMembers
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((member) => (
                 <TableRow key={member._id}>
