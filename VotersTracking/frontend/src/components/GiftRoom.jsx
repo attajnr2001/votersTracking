@@ -1,3 +1,4 @@
+// GiftRoom.jsx
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -11,22 +12,16 @@ import {
   Paper,
   CircularProgress,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
+import AddGiftRoom from "../mod/AddGIftRoom";
 
 const GiftRoom = () => {
   const [gifts, setGifts] = useState([]);
   const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [newGift, setNewGift] = useState({ name: "", description: "" });
   const navigate = useNavigate();
 
-  // Simulated data - replace this with actual API call
   useEffect(() => {
     setGifts([
       {
@@ -58,20 +53,15 @@ const GiftRoom = () => {
   };
 
   const handleOpenAddDialog = () => {
-    setOpenAddDialog(true);
+    navigate("/dashboard/add-gift-room");
   };
 
   const handleCloseAddDialog = () => {
     setOpenAddDialog(false);
-    setNewGift({ name: "", description: "" });
   };
 
-  const handleAddGift = () => {
-    // Implement the logic to add a new gift
-    console.log("Adding new gift:", newGift);
-    // After adding, you might want to refresh the gift list
-    // setGifts([...gifts, { id: Date.now(), ...newGift, percentageReceived: 0 }]);
-    handleCloseAddDialog();
+  const handleAddGift = (newGift) => {
+    setGifts([...gifts, { id: Date.now(), ...newGift, percentageReceived: 0 }]);
   };
 
   return (
@@ -84,7 +74,14 @@ const GiftRoom = () => {
           marginBottom: 2,
         }}
       >
-        <Typography variant="h4">Gift Room</Typography>
+        <Typography
+          color={"secondary"}
+          variant="h5"
+          sx={{ fontWeight: "bold" }}
+          mb={2}
+        >
+          Gift Room
+        </Typography>
         <Button
           variant="contained"
           color="primary"
@@ -153,36 +150,6 @@ const GiftRoom = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Dialog open={openAddDialog} onClose={handleCloseAddDialog}>
-        <DialogTitle>Add New Gift Room</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Gift Name"
-            type="text"
-            fullWidth
-            value={newGift.name}
-            onChange={(e) => setNewGift({ ...newGift, name: e.target.value })}
-          />
-          <TextField
-            margin="dense"
-            label="Description"
-            type="text"
-            fullWidth
-            value={newGift.description}
-            onChange={(e) =>
-              setNewGift({ ...newGift, description: e.target.value })
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseAddDialog}>Cancel</Button>
-          <Button onClick={handleAddGift} color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

@@ -27,7 +27,7 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
         gender: member.gender || "M",
         age: member.age || "",
         occupation: member.occupation || "",
-        voterId: member.voterId || "",
+        voterId: member.voterId || " ",
       });
     }
   }, [member]);
@@ -63,6 +63,7 @@ const EditMemberDialog = ({ open, onClose, member, onSubmit }) => {
             onChange={handleChange}
             fullWidth
             margin="normal"
+            required
           />
           <TextField
             name="number"

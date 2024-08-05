@@ -22,6 +22,7 @@ import Groups from "./components/Groups";
 import AllMembers from "./components/AllMembers";
 import GiftRoom from "./components/GiftRoom";
 import EditGiftRoom from "./components/EditGiftRoom";
+import AddGiftRoom from "./mod/AddGIftRoom";
 
 const App = () => {
   const router = createBrowserRouter(
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="groups" element={<Groups />} />
             <Route path="all-members" element={<AllMembers />} />
             <Route path="gift-room" element={<GiftRoom />} />
+            <Route path="add-gift-room" element={<AddGiftRoom />} />
             <Route path="edit-gift/:giftId" element={<EditGiftRoom />} />
           </Route>
         </Route>

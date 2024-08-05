@@ -94,7 +94,6 @@ const createGroupMember = asyncHandler(async (req, res) => {
   }
 });
 
-// Function to update a group member
 const updateGroupMember = asyncHandler(async (req, res) => {
   const { name, number, gender, age, occupation, voterId } = req.body;
 
@@ -106,9 +105,7 @@ const updateGroupMember = asyncHandler(async (req, res) => {
     groupMember.gender = gender || groupMember.gender;
     groupMember.age = age || groupMember.age;
     groupMember.occupation = occupation || groupMember.occupation;
-    groupMember.voterId = voterId || groupMember.voterId;
-    // Remove or comment out this line:
-    // groupMember.voterId = voterId || groupMember.voterId || (await generateVoterId());
+    groupMember.voterId = voterId || groupMember.voterId; // Ensure voterId is always set
 
     const updatedGroupMember = await groupMember.save();
     res.json(updatedGroupMember);
@@ -117,6 +114,8 @@ const updateGroupMember = asyncHandler(async (req, res) => {
     throw new Error("Group member not found");
   }
 });
+
+
 // Function to delete a group member
 const deleteGroupMember = async (req, res) => {
   try {

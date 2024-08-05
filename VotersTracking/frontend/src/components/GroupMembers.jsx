@@ -116,6 +116,7 @@ const GroupMembers = ({ groupId, onBack }) => {
       await updateGroupMember({
         id: editingMember._id,
         ...updatedMember,
+        voterId: updatedMember.voterId || editingMember.voterId, // Ensure voterId is always included
       }).unwrap();
       handleCloseEditDialog();
       refetch();
